@@ -30,13 +30,13 @@ effect_scanline_update()
 	Uint8 h, w;	
 	static int i=0;
 
-	src = (Uint16 *)buffer->pixels + visible_area.x + (352 << 4);// LeftBorder + RowLength * UpperBorder
-	dst = (Uint16 *)screen->pixels + yscreenpadding;
+	src = ((Uint16*)buffer->pixels) + visible_area.x + (352 << 4);// LeftBorder + RowLength * UpperBorder
+	dst = ((Uint16*)screen->pixels) + yscreenpadding;
 	//if (i) dst+=screen->pitch;	i=1-i;
 	for(h = visible_area.h; h > 0; h--)
 	{
 		for(w = visible_area.w>>1; w > 0; w--)
-		{		
+		{	
 			s = *(Uint32 *)src;
 #ifdef WORDS_BIGENDIAN
 			d = (s & 0xFFFF0000) + ((s & 0xFFFF0000)>>16);
@@ -51,7 +51,6 @@ effect_scanline_update()
 			d = (s & 0x0000FFFF) + ((s & 0x0000FFFF)<<16);
 			*(Uint32 *)(dst) = d;			
 #endif
-			
 			dst += 4;
 			src += 2;
 		}
@@ -70,7 +69,6 @@ effect_scanline50_update()
 	src = (Uint16 *)buffer->pixels + visible_area.x + (352 << 4);// LeftBorder + RowLength * UpperBorder
 	dst = (Uint16 *)screen->pixels + yscreenpadding;
 
-	
 	for(h = visible_area.h; h > 0; h--)
 	{
 		for(w = visible_area.w>>1; w > 0; w--)

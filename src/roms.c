@@ -44,7 +44,7 @@ void mslug5_decrypt_68k(GAME_ROMS *r);
 void kf2k3pcb_decrypt_s1data(GAME_ROMS *r);
 void kf2k3pcb_decrypt_68k(GAME_ROMS *r);
 void kof2003_decrypt_68k(GAME_ROMS *r);
-void kof99_neogeo_gfx_decrypt(GAME_ROMS *r, int extra_xor);
+void kof99_neogeo_gfx_decrypt(GAME_ROMS *r, int extra_xor, const char* dir);
 void kof2000_neogeo_gfx_decrypt(GAME_ROMS *r, int extra_xor);
 void cmc50_neogeo_gfx_decrypt(GAME_ROMS *r, int extra_xor);
 void cmc42_neogeo_gfx_decrypt(GAME_ROMS *r, int extra_xor);
@@ -190,7 +190,7 @@ int init_mslugx(GAME_ROMS *r) {
 int init_kof99(GAME_ROMS *r) {
 	if (need_decrypt) {
 		kof99_decrypt_68k(r);
-		kof99_neogeo_gfx_decrypt(r, 0x00);
+		kof99_neogeo_gfx_decrypt(r, 0x00, CF_STR(cf_get_item_by_name("rompath")));	
 	}
 	neogeo_fix_bank_type = 0;
 	memory.bksw_offset = bankoffset_kof99;
@@ -202,14 +202,16 @@ int init_kof99(GAME_ROMS *r) {
 
 int init_kof99n(GAME_ROMS *r) {
 	neogeo_fix_bank_type = 1;
-	if (need_decrypt) kof99_neogeo_gfx_decrypt(r, 0x00);
+	if (need_decrypt) {
+    kof99_neogeo_gfx_decrypt(r, 0x00, CF_STR(cf_get_item_by_name("rompath")));
+  }
 	return 0;
 }
 
 int init_garou(GAME_ROMS *r) {
 	if (need_decrypt) {
 		garou_decrypt_68k(r);
-		kof99_neogeo_gfx_decrypt(r, 0x06);
+		kof99_neogeo_gfx_decrypt(r, 0x06, CF_STR(cf_get_item_by_name("rompath")));
 	}
 	neogeo_fix_bank_type = 1;
 	memory.bksw_offset = bankoffset_garou;
@@ -223,7 +225,7 @@ int init_garou(GAME_ROMS *r) {
 int init_garouo(GAME_ROMS *r) {
 	if (need_decrypt) {
 		garouo_decrypt_68k(r);
-		kof99_neogeo_gfx_decrypt(r, 0x06);
+		kof99_neogeo_gfx_decrypt(r, 0x06, CF_STR(cf_get_item_by_name("rompath")));
 	}
 	neogeo_fix_bank_type = 1;
 	memory.bksw_offset = bankoffset_garouo;
@@ -255,7 +257,7 @@ int init_mslug3(GAME_ROMS *r) {
 	printf("INIT MSLUG3\n");
 	if (need_decrypt) {
 		mslug3_decrypt_68k(r);
-		kof99_neogeo_gfx_decrypt(r, 0xad);
+		kof99_neogeo_gfx_decrypt(r, 0xad, CF_STR(cf_get_item_by_name("rompath")));
 	}
 	neogeo_fix_bank_type = 1;
 	memory.bksw_offset = bankoffset_mslug3;
@@ -269,7 +271,9 @@ int init_mslug3(GAME_ROMS *r) {
 
 int init_mslug3h(GAME_ROMS *r) {
 	neogeo_fix_bank_type = 1;
-	if (need_decrypt) kof99_neogeo_gfx_decrypt(r, 0xad);
+	if (need_decrypt) {
+    kof99_neogeo_gfx_decrypt(r, 0xad, CF_STR(cf_get_item_by_name("rompath")));
+  }
 	return 0;
 }
 
@@ -366,43 +370,57 @@ int init_ms4plus(GAME_ROMS *r) {
 
 int init_ganryu(GAME_ROMS *r) {
 	neogeo_fix_bank_type = 1;
-	if (need_decrypt) kof99_neogeo_gfx_decrypt(r, 0x07);
+	if (need_decrypt){
+    kof99_neogeo_gfx_decrypt(r, 0x07, CF_STR(cf_get_item_by_name("rompath")));
+  }
 	return 0;
 }
 
 int init_s1945p(GAME_ROMS *r) {
 	neogeo_fix_bank_type = 1;
-	if (need_decrypt) kof99_neogeo_gfx_decrypt(r, 0x05);
+	if (need_decrypt) {
+    kof99_neogeo_gfx_decrypt(r, 0x05, CF_STR(cf_get_item_by_name("rompath")));
+  }
 	return 0;
 }
 
 int init_preisle2(GAME_ROMS *r) {
 	neogeo_fix_bank_type = 1;
-	if (need_decrypt) kof99_neogeo_gfx_decrypt(r, 0x9f);
+	if (need_decrypt) {
+    kof99_neogeo_gfx_decrypt(r, 0x9f, CF_STR(cf_get_item_by_name("rompath")));
+  }
 	return 0;
 }
 
 int init_bangbead(GAME_ROMS *r) {
 	neogeo_fix_bank_type = 1;
-	if (need_decrypt) kof99_neogeo_gfx_decrypt(r, 0xf8);
+	if (need_decrypt) {
+    kof99_neogeo_gfx_decrypt(r, 0xf8, CF_STR(cf_get_item_by_name("rompath")));
+  }
 	return 0;
 }
 
 int init_nitd(GAME_ROMS *r) {
 	neogeo_fix_bank_type = 1;
-	if (need_decrypt) kof99_neogeo_gfx_decrypt(r, 0xff);
+	if (need_decrypt) {
+    kof99_neogeo_gfx_decrypt(r, 0xff, CF_STR(cf_get_item_by_name("rompath")));
+  }
 	return 0;
 }
 
 int init_zupapa(GAME_ROMS *r) {
 	neogeo_fix_bank_type = 1;
-	if (need_decrypt) kof99_neogeo_gfx_decrypt(r, 0xbd);
+	if (need_decrypt) {
+    kof99_neogeo_gfx_decrypt(r, 0xbd, CF_STR(cf_get_item_by_name("rompath")));
+  }
 	return 0;
 }
 
 int init_sengoku3(GAME_ROMS *r) {
 	neogeo_fix_bank_type = 1;
-	if (need_decrypt) kof99_neogeo_gfx_decrypt(r, 0xfe);
+	if (need_decrypt) {
+    kof99_neogeo_gfx_decrypt(r, 0xfe, CF_STR(cf_get_item_by_name("rompath")));
+  }
 	return 0;
 }
 
@@ -1203,8 +1221,7 @@ static int init_roms(GAME_ROMS *r) {
 
 	while (init_func_table[i].name) {
 		//printf("INIT ROM ? %s %s\n",init_func_table[i].name,r->info.name);
-		if (strcmp(init_func_table[i].name, r->info.name) == 0
-				&& init_func_table[i].init != NULL) {
+		if (strcmp(init_func_table[i].name, r->info.name) == 0 && init_func_table[i].init != NULL) {
 			DEBUG_LOG("Special init func\n");
 			return init_func_table[i].init(r);
 		}
@@ -2091,4 +2108,39 @@ int init_game(char *rom_name) {
 
 
     return GN_TRUE;
+}
+
+char *remove_path_and_extension(char* mystr, char dot, char sep) {
+    char *retstr, *lastdot, *lastsep;
+	char *filename;
+    // Error checks and allocate string.
+
+    if (mystr == NULL)
+        return NULL;
+    if ((retstr = malloc (strlen (mystr) + 1)) == NULL)
+        return NULL;
+
+    // Make a copy and find the relevant characters.
+	filename = basename(mystr);
+    strcpy (retstr, filename);
+    lastdot = strrchr (retstr, dot);
+    lastsep = (sep == 0) ? NULL : strrchr (retstr, sep);
+
+    // If it has an extension separator.
+
+    if (lastdot != NULL) {
+        // and it's before the extenstion separator.
+        if (lastsep != NULL) {
+            if (lastsep < lastdot) {
+                // then remove it.
+                *lastdot = '\0';
+            }
+        } else {
+            // Has extension separator with no path separator.
+            *lastdot = '\0';
+        }
+    }
+
+    // Return the modified string.
+    return retstr;
 }

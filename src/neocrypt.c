@@ -504,13 +504,8 @@ static const UINT8 kof2000_address_0_7_xor[256] =
 
 #endif
 
-static void decrypt(UINT8 *r0, UINT8 *r1,
-					UINT8 c0,  UINT8 c1,
-					const UINT8 *table0hi,
-					const UINT8 *table0lo,
-					const UINT8 *table1,
-					int base,
-					int invert)
+static void decrypt(UINT8 *r0, UINT8 *r1, UINT8 c0, UINT8 c1, const UINT8 *table0hi, 
+  const UINT8 *table0lo, const UINT8 *table1, int base, int invert)
 {
 	UINT8 tmp,xor0,xor1;
 
@@ -530,7 +525,6 @@ static void decrypt(UINT8 *r0, UINT8 *r1,
 	}
 }
 
-
 static void neogeo_gfx_decrypt(running_machine *machine, int extra_xor)
 {
 	int rom_size;
@@ -538,69 +532,89 @@ static void neogeo_gfx_decrypt(running_machine *machine, int extra_xor)
 	UINT8 *rom;
 	int rpos;
 	int cnt;
+
 	rom_size = memory_region_length(machine, "sprites");
-
 	buf = alloc_array_or_die(UINT8, rom_size);
-
 	rom = memory_region(machine, "sprites");
 	gn_init_pbar("Decrypting...", rom_size/2);
-	// Data xor
+	
+  // data xor
 	cnt=0;
-	for (rpos = 0;rpos < rom_size/4;rpos++)
+	for(rpos=0; rpos<rom_size/4; rpos++)
 	{
-		decrypt(buf+4*rpos+0, buf+4*rpos+3, rom[4*rpos+0], rom[4*rpos+3], type0_t03, type0_t12, type1_t03, rpos, (rpos>>8) & 1);
-		decrypt(buf+4*rpos+1, buf+4*rpos+2, rom[4*rpos+1], rom[4*rpos+2], type0_t12, type0_t03, type1_t12, rpos, ((rpos>>16) ^ address_16_23_xor2[(rpos>>8) & 0xff]) & 1);
+		decrypt(
+      buf + 4 * rpos + 0, 
+      buf + 4 * rpos + 3, 
+      rom[4 * rpos + 0], 
+      rom[4 * rpos + 3], 
+      type0_t03, 
+      type0_t12, 
+      type1_t03, 
+      rpos, 
+      (rpos >> 8) & 1);
+
+		decrypt(
+      buf + 4 * rpos + 1, 
+      buf + 4 * rpos + 2, 
+      rom[4 * rpos + 1], 
+      rom[4 * rpos + 2], 
+      type0_t12, 
+      type0_t03, 
+      type1_t12, 
+      rpos, 
+      ((rpos >> 16) ^ address_16_23_xor2[(rpos >> 8) & 0xff]) & 1);
+
 		if (cnt++ > 32768) {
 			cnt=0;
 			gn_update_pbar(rpos);
 		}
 	}
-	cnt=0;
-	// Address xor
+	
+  // address xor
 	for (rpos = 0;rpos < rom_size/4;rpos++)
 	{
 		int baser;
-		if (cnt++>32768) {
+		if (cnt++ > 32768) {
 			gn_update_pbar(rpos + (rom_size >> 2));
 			cnt++;
 		}
 		baser = rpos;
+		baser^= extra_xor;
+		baser^= address_8_15_xor1[(baser >> 16) & 0xff] << 8;
+		baser^= address_8_15_xor2[baser & 0xff] << 8;
+		baser^= address_16_23_xor1[baser & 0xff] << 16;
+		baser^= address_16_23_xor2[(baser >> 8) & 0xff] << 16;
+		baser^= address_0_7_xor[(baser >> 8) & 0xff];
 
-		baser ^= extra_xor;
-
-		baser ^= address_8_15_xor1[(baser >> 16) & 0xff] << 8;
-		baser ^= address_8_15_xor2[baser & 0xff] << 8;
-		baser ^= address_16_23_xor1[baser & 0xff] << 16;
-		baser ^= address_16_23_xor2[(baser >> 8) & 0xff] << 16;
-		baser ^= address_0_7_xor[(baser >> 8) & 0xff];
-
-
-		if (rom_size == 0x3000000) /* special handling for preisle2 */
-		{
-			if (rpos < 0x2000000/4)
-				baser &= (0x2000000/4)-1;
-			else
+		if (rom_size == 0x3000000){ // special handling for preisle2
+			if (rpos < 0x2000000 / 4){
+				baser&= (0x2000000 / 4) - 1;
+      }
+			else{
 				baser = 0x2000000/4 + (baser & ((0x1000000/4)-1));
+      }
 		}
-		else if (rom_size == 0x6000000)	/* special handling for kf2k3pcb */
+		else if (rom_size == 0x6000000)	// special handling for kf2k3pcb
 		{
-			if (rpos < 0x4000000/4)
-				baser &= (0x4000000/4)-1;
-			else
+			if (rpos < 0x4000000/4){
+				baser&= (0x4000000/4)-1;
+      }
+			else{
 				baser = 0x4000000/4 + (baser & ((0x1000000/4)-1));
+      }
 		}
-		else /* Clamp to the real rom size */
-			baser &= (rom_size/4)-1;
+		else{ // clamp to the real rom size
+			baser&= (rom_size/4)-1;
+    }
 
-		rom[4*rpos+0] = buf[4*baser+0];
-		rom[4*rpos+1] = buf[4*baser+1];
-		rom[4*rpos+2] = buf[4*baser+2];
-		rom[4*rpos+3] = buf[4*baser+3];
+		rom[4 * rpos + 0] = buf[4 * baser + 0];
+		rom[4 * rpos + 1] = buf[4 * baser + 1];
+		rom[4 * rpos + 2] = buf[4 * baser + 2];
+		rom[4 * rpos + 3] = buf[4 * baser + 3];
 	}
 	gn_terminate_pbar();
 	free(buf);
 }
-
 
 /* the S data comes from the end of the C data */
 void neogeo_sfix_decrypt(running_machine *machine)
@@ -656,7 +670,7 @@ void load_cmc50_table(void) {
 }
 
 /* CMC42 protection chip */
-void kof99_neogeo_gfx_decrypt(running_machine *machine, int extra_xor)
+void kof99_neogeo_gfx_decrypt(running_machine *machine, int extra_xor, const  char *dir)
 {
 	/*
 	type0_t03 =          kof99_type0_t03;
@@ -669,8 +683,27 @@ void kof99_neogeo_gfx_decrypt(running_machine *machine, int extra_xor)
 	address_16_23_xor2 = kof99_address_16_23_xor2;
 	address_0_7_xor =    kof99_address_0_7_xor;
 	*/
+
+  FILE *fp;
+  char buf[255]={0};
+  int rom_size = memory_region_length(machine, "sprites");
+  uint8_t *rom = memory_region(machine, "sprites");
+  sprintf(buf, "%s/%s.dcy", dir, machine->info.name);
+  fp = fopen(buf, "rb");
+
 	load_cmc42_table();
-	neogeo_gfx_decrypt(machine, extra_xor);
+  if(fp == NULL){
+	  neogeo_gfx_decrypt(machine, extra_xor);
+  
+    fp = fopen(buf, "wb");
+    fwrite(rom, rom_size, 1, fp);
+    fclose(fp);
+  }
+  else{
+    fread(rom, rom_size, 1, fp);
+    fclose(fp);
+  }
+
 	neogeo_sfix_decrypt(machine);
 	free(type0_t03);
 }

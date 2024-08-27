@@ -67,25 +67,20 @@ static int default_tvoffset[] = {0, 0};
 #endif
 
 #if defined(GP2X) || defined(WIZ)
-static char * default_p1control = "UP=J0B0,DOWN=J0B4,LEFT=J0B2,RIGHT=J0B6,A=J0B14,"
-		"B=J0B13,C=J0B12,D=J0B15,COIN=J0B9,START=J0B8,HOTKEY1=J0B10,HOTKEY2=J0B11";
+static char * default_p1control = "UP=J0B0,DOWN=J0B4,LEFT=J0B2,RIGHT=J0B6,A=J0B14,B=J0B13,C=J0B12,D=J0B15,COIN=J0B9,START=J0B8,HOTKEY1=J0B10,HOTKEY2=J0B11";
 static char * default_p2control = "";
 #elif defined(PANDORA)
-static char * default_p1control = "A=K281,B=K279,C=K278,D=K280,START=K308,COIN=K306,"
-		"UP=K273,DOWN=K274,LEFT=K276,RIGHT=K275,MENU=K32";
+static char * default_p1control = "A=K281,B=K279,C=K278,D=K280,START=K308,COIN=K306,UP=K273,DOWN=K274,LEFT=K276,RIGHT=K275,MENU=K32";
 static char * default_p2control = "";
 #elif defined (DINGUX)
-static char * default_p1control = "A=K308,B=K306,C=K304,D=K32,START=K13,COIN=K9,"
-		"UP=K273,DOWN=K274,LEFT=K276,RIGHT=K275,MENU=K113";
+static char * default_p1control = "A=K308,B=K306,C=K304,D=K32,START=K13,COIN=K9,UP=K273,DOWN=K274,LEFT=K276,RIGHT=K275,MENU=K113";
 static char * default_p2control = "";
 #elif defined (WII)
-static char *default_p1control = "A=J0B9,B=J0B10,C=J0B11,D=J0B12,START=J0B18,COIN=J0B17"
-	"UPDOWN=J0A1,LEFTRIGHT=J0A0,JOY=J0H0";
+static char *default_p1control = "A=J0B9,B=J0B10,C=J0B11,D=J0B12,START=J0B18,COIN=J0B17,UPDOWN=J0A1,LEFTRIGHT=J0A0,JOY=J0H0";
 static char *default_p2control = "....";
 #else
-	/* TODO: Make Querty default instead of azerty */
-static char * default_p1control = "A=K119,B=K120,C=K113,D=K115,START=K38,COIN=K34,"
-		"UP=K273,DOWN=K274,LEFT=K276,RIGHT=K275,MENU=K27";
+//static char * default_p1control = "A=K119,B=K120,C=K113,D=K115,START=K38,COIN=K34,UP=K273,DOWN=K274,LEFT=K276,RIGHT=K275,MENU=K27";
+static char * default_p1control = "A=K306,B=K308,C=K32,D=K304,START=K13,COIN=K27,UP=K273,DOWN=K274,LEFT=K276,RIGHT=K275,MENU=K305";
 static char * default_p2control = "";
 #endif
 
@@ -420,9 +415,12 @@ void cf_init(void) {
 	cf_create_string_item("biospath", "Tell gngeo where your neogeo bios is", "PATH", 'B', ROOTPATH"./roms");
 	cf_create_string_item("datafile", "Tell gngeo where his ressource file is", "PATH", 'd', ROOTPATH"./gngeo_data.zip");
 #else
-	cf_create_string_item("rompath", "Tell gngeo where your roms are", "PATH", 'i', DATA_DIRECTORY);
-	cf_create_string_item("biospath", "Tell gngeo where your neogeo bios is", "PATH", 'B', DATA_DIRECTORY);
-	cf_create_string_item("datafile", "Tell gngeo where his ressource file is", "PATH", 'd', DATA_DIRECTORY"/gngeo_data.zip");
+	//cf_create_string_item("rompath", "Tell gngeo where your roms are", "PATH", 'i', DATA_DIRECTORY);
+	//cf_create_string_item("biospath", "Tell gngeo where your neogeo bios is", "PATH", 'B', DATA_DIRECTORY);
+	//cf_create_string_item("datafile", "Tell gngeo where his ressource file is", "PATH", 'd', DATA_DIRECTORY"/gngeo_data.zip");
+	cf_create_string_item("rompath", "Tell gngeo where your roms are", "PATH", 'i', ROOTPATH"./roms");
+	cf_create_string_item("biospath", "Tell gngeo where your neogeo bios is", "PATH", 'B', ROOTPATH"./roms");
+	cf_create_string_item("datafile", "Tell gngeo where his ressource file is", "PATH", 'd', ROOTPATH"./gngeo_data.zip");
 #endif
 	//cf_create_string_item("romrcdir","Use STRING as romrc.d directory",0,DATA_DIRECTORY"/romrc.d");
 	cf_create_string_item("libglpath", "Path to your libGL.so", "PATH", 0, "/usr/lib/libGL.so");
