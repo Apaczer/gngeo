@@ -214,7 +214,8 @@ int handle_pdep_event(SDL_Event *event) {
 	switch (event->type) {
 	case SDL_KEYDOWN:
 		switch (event->key.keysym.sym) {
-		case SDLK_ESCAPE:
+		//case SDLK_ESCAPE:
+		case SDLK_RCTRL:
 			return 1;
 			break;
 		case SDLK_F3:
@@ -268,7 +269,7 @@ int handle_event(void) {
 			}
 		break;
 	    case SDL_KEYDOWN:
-				//printf("%d\n", event.key.keysym.sym);
+				printf("%d %d\n", event.key.keysym.sym, jmap->key[event.key.keysym.sym].map);
 		    switch (jmap->key[event.key.keysym.sym].player) {
 			case 1:
 				joy_state[0][jmap->key[event.key.keysym.sym].map]=1;
@@ -395,20 +396,23 @@ int handle_event(void) {
 			break;
 		}
 	}
-/*
+
+#if 0
 	for(i=0;i<GN_MAX_KEY;i++)
 		printf("%d",joy_state[0][i]);
 	printf("|");
 	for(i=0;i<GN_MAX_KEY;i++)
 		printf("%d",joy_state[1][i]);
 	printf("\r");
-*/
+#endif
+
 	/* Update coin data */
 	memory.intern_coin = 0x7;
 	if (joy_state[0][GN_SELECT_COIN])
 		memory.intern_coin &= 0x6;
 	if (joy_state[1][GN_SELECT_COIN])
 		memory.intern_coin &= 0x5;
+
 	/* Update start data TODO: Select */
 	memory.intern_start = 0x8F;
 	if (joy_state[0][GN_START])
@@ -427,13 +431,13 @@ int handle_event(void) {
 	if (joy_state[0][GN_RIGHT] && (!joy_state[0][GN_LEFT]))
 	    memory.intern_p1 &= 0xF7;
 	if (joy_state[0][GN_A])
-	    memory.intern_p1 &= 0xEF;	// A
+	    memory.intern_p1 &= 0xEF;	// A  0xef
 	if (joy_state[0][GN_B])
-	    memory.intern_p1 &= 0xDF;	// B
+	    memory.intern_p1 &= 0xDF;	// B  0xdf
 	if (joy_state[0][GN_C])
-	    memory.intern_p1 &= 0xBF;	// C
+	    memory.intern_p1 &= 0xBF;	// C  0xbf
 	if (joy_state[0][GN_D])
-	    memory.intern_p1 &= 0x7F;	// D
+	    memory.intern_p1 &= 0x7F;	// D  0x7f
 
 	/* Update P1 */
 	memory.intern_p2 = 0xFF;
@@ -462,9 +466,7 @@ int handle_event(void) {
 
 	if(joy_state[0][GN_MENU_KEY]==1)
 		return 1;
-	else 
-		return 0;
-
+  return 0;
 }
 
 /*
