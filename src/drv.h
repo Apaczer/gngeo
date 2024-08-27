@@ -1,4 +1,5 @@
-/*  gngeo a neogeo emulator
+/*
+ *  Copyright (C) 2021 Steward Fu
  *  Copyright (C) 2001 Peponas Mathieu
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -16,18 +17,12 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _SOUND_H_
-#define _SOUND_H_
+#ifndef __DRV_H__
+#define __DRV_H__
 
-#include "SDL.h"
+#include "roms.h"
 
-#define NB_SEGMENT 20
-#define SAMPLE_RATE          44100
-
-
-extern SDL_AudioSpec *desired, *obtain;
-int init_sdl_audio(void);
-void close_sdl_audio(void);
-void pause_audio(int on);
+ROM_DEF *res_load_drv(char *name);
 
 #endif
+

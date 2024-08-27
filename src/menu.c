@@ -27,13 +27,16 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <SDL.h>
+#include <SDL_image.h>
 #include <SDL_thread.h>
 
+#include "drv.h"
 #include "emu.h"
 #include "roms.h"
 #include "menu.h"
 #include "conf.h"
 #include "video.h"
+#include "sound.h"
 #include "event.h"
 #include "state.h"
 #include "video.h"
@@ -41,11 +44,17 @@
 #include "memory.h"
 #include "screen.h"
 #include "gnutil.h"
-#include "resfile.h"
 #include "messages.h"
 #include "frame_skip.h"
-
-#define ROOTPATH ""
+#include "hex_arrow_down.h"
+#include "hex_arrow_left.h"
+#include "hex_arrow_right.h"
+#include "hex_arrow_up.h"
+#include "hex_back.h"
+#include "hex_gngeo.h"
+#include "hex_gngeo_mask.h"
+#include "hex_font_large.h"
+#include "hex_font_small.h"
 
 #define ICOL_BLACK  0
 #define ICOL_RED    1
@@ -64,7 +73,7 @@
 
 static int pbar_y;
 
-char *lr_btn_string[] = {"None", "A", "B", "C", "D", "A+B", "A+C", "A+D", "B+C", "B+D", "C+D", "A+B+C", "A+B+D", "A+C+D", "B+C+D", "A+B+C+D"};
+char *abxylr_btn_string[] = {"None", "A", "B", "C", "D", "A+B", "A+C", "A+D", "B+C", "B+D", "C+D", "A+B+C", "A+B+D", "A+C+D", "B+C+D", "A+B+C+D"};
 uint32_t font_color[] = { COL_BLACK, COL_RED, COL_GREEN, COL_GREY_L, COL_GREY_M, COL_GREY_D};
 
 typedef struct GNFONT {
@@ -111,17 +120,14 @@ static SDL_Surface *arrow_l, *arrow_r, *arrow_u, *arrow_d;
 #define MENU_EXIT         2
 #define MENU_RETURNTOGAME 3
 
-static GN_MENU *main_menu;
-static GN_MENU *rbrowser_menu;
-static GN_MENU *option_menu;
-static GN_MENU *effect_menu;
-static GN_MENU *srate_menu;
-static GN_MENU *lbtn_menu;
-static GN_MENU *rbtn_menu;
-static GN_MENU *yesno_menu;
+static GN_MENU *main_menu=NULL;
+static GN_MENU *option_menu=NULL;
+static GN_MENU *btn_menu[6]={0};
+static GN_MENU *yesno_menu=NULL;
+static GN_MENU *rbrowser_menu=NULL;
 
 static char *romlist[] = {
-  "/2020bb.zip",   "/2020bba.zip",  "/2020bbh.zip",  "/3countb.zip",   "/alpham2.zip",   "/androdun.zip",  "/aodk.zip",      "/aof.zip",      
+  "/2020bb.zip",   "/2020bba.zip",  "/2020bbh.zip",  "/3countb.zip",   "/alpham2.zip",   "/androdun.zip",  "/aodk.zip",      "/aof.zip",
   "/aof2.zip",     "/aof2a.zip",    "/aof3.zip",     "/aof3k.zip",     "/bakatono.zip",  "/bangbead.zip",  "/bjourney.zip",  "/blazstar.zip",
   "/breakers.zip", "/breakrev.zip", "/bstars.zip",   "/bstars2.zip",   "/burningf.zip",  "/burningfh.zip", "/crsword.zip",   "/ct2k3sa.zip",
   "/ct2k3sp.zip",  "/cthd2003.zip", "/ctomaday.zip", "/cyberlip.zip",  "/diggerma.zip",  "/doubledr.zip",  "/eightman.zip",  "/fatfursa.zip",
@@ -133,15 +139,15 @@ static char *romlist[] = {
   "/kof2000.zip",  "/kof2000n.zip", "/kof2001.zip",  "/kof2001h.zip",  "/kof2002.zip",   "/kof2002b.zip",  "/kof2003.zip",   "/kof2003h.zip",
   "/kof2k4se.zip", "/kof94.zip",    "/kof95.zip",    "/kof95h.zip",    "/kof96.zip",     "/kof96h.zip",    "/kof97.zip",     "/kof97a.zip",
   "/kof97pls.zip", "/kof98.zip",    "/kof98k.zip",   "/kof98n.zip",    "/kof99.zip",     "/kof99a.zip",    "/kof99e.zip",    "/kof99n.zip",
-  "/kof99p.zip",   "/kog.zip",      "/kotm.zip",     "/kotm2.zip",     "/kotmh.zip",     "/lans2004.zip",  "/lastblad.zip",  "/lastbladh.zip", 
-  "/lastbld2.zip", "/lastsold.zip", "/lbowling.zip", "/legendos.zip",  "/lresort.zip",   "/magdrop2.zip",  "/magdrop3.zip",  "/maglord.zip",   
-  "/maglordh.zip", "/mahretsu.zip", "/marukodq.zip", "/matrim.zip",    "/matrimbl.zip",  "/miexchng.zip",  "/minasan.zip",   "/mosyougi.zip",  
-  "/ms4plus.zip",  "/ms5pcb.zip",   "/ms5plus.zip",  "/mslug.zip",     "/mslug2.zip",    "/mslug3.zip",    "/mslug3b6.zip",  "/mslug3h.zip",   
-  "/mslug3n.zip",  "/mslug4.zip",   "/mslug5.zip",   "/mslug5h.zip",   "/mslugx.zip",    "/mutnat.zip",    "/nam1975.zip",   "/ncombat.zip",  
-  "/ncombath.zip", "/ncommand.zip", "/neobombe.zip", "/neocup98.zip",  "/neodrift.zip",  "/neomrdo.zip",   "/ninjamas.zip",  "/nitd.zip",      
-  "/nitdbl.zip",   "/overtop.zip",  "/panicbom.zip", "/pbobbl2n.zip",  "/pbobblen.zip",  "/pbobblena.zip", "/pgoal.zip",     "/pnyaa.zip",     
-  "/popbounc.zip", "/preisle2.zip", "/pspikes2.zip", "/pulstar.zip",   "/puzzldpr.zip",  "/puzzledp.zip",  "/quizdai2.zip",  "/quizdais.zip",  
-  "/quizkof.zip",  "/ragnagrd.zip", "/rbff1.zip",    "/rbff1a.zip",    "/rbff2.zip",     "/rbff2h.zip",    "/rbff2k.zip",    "/rbffspec.zip",  
+  "/kof99p.zip",   "/kog.zip",      "/kotm.zip",     "/kotm2.zip",     "/kotmh.zip",     "/lans2004.zip",  "/lastblad.zip",  "/lastbladh.zip",
+  "/lastbld2.zip", "/lastsold.zip", "/lbowling.zip", "/legendos.zip",  "/lresort.zip",   "/magdrop2.zip",  "/magdrop3.zip",  "/maglord.zip",
+  "/maglordh.zip", "/mahretsu.zip", "/marukodq.zip", "/matrim.zip",    "/matrimbl.zip",  "/miexchng.zip",  "/minasan.zip",   "/mosyougi.zip",
+  "/ms4plus.zip",  "/ms5pcb.zip",   "/ms5plus.zip",  "/mslug.zip",     "/mslug2.zip",    "/mslug3.zip",    "/mslug3b6.zip",  "/mslug3h.zip",
+  "/mslug3n.zip",  "/mslug4.zip",   "/mslug5.zip",   "/mslug5h.zip",   "/mslugx.zip",    "/mutnat.zip",    "/nam1975.zip",   "/ncombat.zip",
+  "/ncombath.zip", "/ncommand.zip", "/neobombe.zip", "/neocup98.zip",  "/neodrift.zip",  "/neomrdo.zip",   "/ninjamas.zip",  "/nitd.zip",
+  "/nitdbl.zip",   "/overtop.zip",  "/panicbom.zip", "/pbobbl2n.zip",  "/pbobblen.zip",  "/pbobblena.zip", "/pgoal.zip",     "/pnyaa.zip",
+  "/popbounc.zip", "/preisle2.zip", "/pspikes2.zip", "/pulstar.zip",   "/puzzldpr.zip",  "/puzzledp.zip",  "/quizdai2.zip",  "/quizdais.zip",
+  "/quizkof.zip",  "/ragnagrd.zip", "/rbff1.zip",    "/rbff1a.zip",    "/rbff2.zip",     "/rbff2h.zip",    "/rbff2k.zip",    "/rbffspec.zip",
   "/ridhero.zip",  "/ridheroh.zip", "/roboarmy.zip", "/rotd.zip",      "/s1945p.zip",    "/samsh5sp.zip",  "/samsh5sph.zip", "/samsh5spn.zip",
   "/samsho.zip",   "/samsho2.zip",  "/samsho3.zip",  "/samsho3h.zip",  "/samsho4.zip",   "/samsho5.zip",   "/samsho5b.zip",  "/samsho5h.zip",
   "/samshoh.zip",  "/savagere.zip", "/sdodgeb.zip",  "/sengokh.zip",   "/sengoku.zip",   "/sengoku2.zip",  "/sengoku3.zip",  "/shocktr2.zip",
@@ -149,7 +155,7 @@ static char *romlist[] = {
   "/ssideki2.zip", "/ssideki3.zip", "/ssideki4.zip", "/stakwin.zip",   "/stakwin2.zip",  "/strhoop.zip",   "/superspy.zip",  "/svc.zip",
   "/svcboot.zip",  "/svcpcb.zip",   "/svcpcba.zip",  "/svcplus.zip",   "/svcplusa.zip",  "/svcsplus.zip",  "/tophuntr.zip",  "/tophuntra.zip",
   "/tpgolf.zip",   "/trally.zip",   "/turfmast.zip", "/twinspri.zip",  "/tws96.zip",     "/viewpoin.zip",  "/vliner.zip",    "/vlinero.zip",
-  "/wakuwak7.zip", "/wh1.zip",      "/wh1h.zip",     "/wh1ha.zip",     "/wh2.zip",       "/wh2j.zip",      "/wh2jh.zip",     "/whp.zip",       
+  "/wakuwak7.zip", "/wh1.zip",      "/wh1h.zip",     "/wh1ha.zip",     "/wh2.zip",       "/wh2j.zip",      "/wh2jh.zip",     "/whp.zip",
   "/wjammers.zip", "/zedblade.zip", "/zintrckb.zip", "/zupapa.zip",    NULL
 };
 
@@ -163,8 +169,9 @@ void font_set_color(GNFONT *ft, int col)
   ft->bmp = ft->cbmp[col];
 }
 
-GNFONT *load_font(char *file)
+GNFONT *load_font(int large)
 {
+  SDL_RWops *rw = NULL;
   GNFONT *ft = malloc(sizeof(GNFONT));
   uint32_t HSV;
   uint32_t RGB;
@@ -176,7 +183,13 @@ GNFONT *load_font(char *file)
   }
   memset(ft, 0, sizeof(GNFONT));
   for(i = 0; i < ICOL_MAX; i++) {
-    ft->cbmp[i] = res_load_stbi(file);
+    if(large) {
+      rw = SDL_RWFromMem(hex_font_large, sizeof(hex_font_large));
+    }
+    else {
+      rw = SDL_RWFromMem(hex_font_small, sizeof(hex_font_small));
+    }
+    ft->cbmp[i] = IMG_Load_RW(rw, 1);
   }
   ft->bmp = ft->cbmp[0];
   if(!ft->bmp) {
@@ -388,23 +401,36 @@ static void draw_arrow(int type, int x, int y)
 
 int gn_init_skin(void)
 {
-  menu_buf = SDL_CreateRGBSurface(SDL_SWSURFACE, 352, 256, 16, 0xF800, 0x7E0, 0x1F, 0);
-  menu_back_1 = SDL_CreateRGBSurface(SDL_SWSURFACE, 352, 256, 16, 0xF800, 0x7E0, 0x1F, 0);
-  if(res_verify_datafile(NULL) == GN_FALSE) {
-    printf("Datafile Not Found! Gngeo could not find his \n datafile :( \n\n%s", gnerror);
-    return GN_FALSE;
-  }
-  back = res_load_stbi("skin/back.tga");
-  sfont = load_font("skin/font_small.tga");
-  mfont = load_font("skin/font_large.tga");
-  arrow_r = res_load_stbi("skin/arrow_right.tga");
-  arrow_l = res_load_stbi("skin/arrow_left.tga");
-  arrow_d = res_load_stbi("skin/arrow_down.tga");
-  arrow_u = res_load_stbi("skin/arrow_up.tga");
-  gngeo_logo = res_load_stbi("skin/gngeo.tga");
-  gngeo_mask = res_load_stbi("skin/gngeo_mask.tga");
+  SDL_RWops *rw = NULL;
 
-  pbar_logo = SDL_CreateRGBSurface(SDL_SWSURFACE, gngeo_logo->w, gngeo_logo->h, 32, 0xFF, 0xFF00, 0xFF0000, 0xFF000000);
+  menu_buf = SDL_CreateRGBSurface(SDL_SWSURFACE, 352, 256, 16, 0xf800, 0x7e0, 0x1f, 0);
+  menu_back_1 = SDL_CreateRGBSurface(SDL_SWSURFACE, 352, 256, 16, 0xf800, 0x7e0, 0x1f, 0);
+
+  rw = SDL_RWFromMem(hex_back, sizeof(hex_back));
+  back = IMG_Load_RW(rw, 1);
+
+  rw = SDL_RWFromMem(hex_arrow_up, sizeof(hex_arrow_up));
+  arrow_u = IMG_Load_RW(rw, 1);
+
+  rw = SDL_RWFromMem(hex_arrow_down, sizeof(hex_arrow_down));
+  arrow_d = IMG_Load_RW(rw, 1);
+
+  rw = SDL_RWFromMem(hex_arrow_left, sizeof(hex_arrow_left));
+  arrow_l = IMG_Load_RW(rw, 1);
+
+  rw = SDL_RWFromMem(hex_arrow_right, sizeof(hex_arrow_right));
+  arrow_r = IMG_Load_RW(rw, 1);
+
+  rw = SDL_RWFromMem(hex_gngeo, sizeof(hex_gngeo));
+  gngeo_logo = IMG_Load_RW(rw, 1);
+
+  rw = SDL_RWFromMem(hex_gngeo_mask, sizeof(hex_gngeo_mask));
+  gngeo_mask = IMG_Load_RW(rw, 1);
+
+  sfont = load_font(0);
+  mfont = load_font(1);
+
+  pbar_logo = SDL_CreateRGBSurface(SDL_SWSURFACE, gngeo_logo->w, gngeo_logo->h, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
   SDL_SetAlpha(gngeo_logo, 0, 0);
   init_back();
   if(!back || !sfont || !mfont || !arrow_r || !arrow_l || !arrow_u || !arrow_d || !gngeo_logo || !menu_buf) {
@@ -496,7 +522,7 @@ void gn_popup_error(char *name, char *fmt, ...)
   char buf[512];
   va_list pvar;
   va_start(pvar, fmt);
-  SDL_Event event={0};
+  SDL_Event event = {0};
 
   draw_back();
   draw_string(menu_buf, mfont, MENU_TITLE_X, MENU_TITLE_Y, name);
@@ -506,8 +532,8 @@ void gn_popup_error(char *name, char *fmt, ...)
   SDL_BlitSurface(menu_buf, NULL, buffer, NULL);
   screen_flip();
 
-  while(1){
-    if(SDL_PollEvent(&event)){
+  while(1) {
+    if(SDL_PollEvent(&event)) {
       break;
     }
     SDL_Delay(50);
@@ -536,10 +562,10 @@ int gn_popup_question(char *name, char *fmt, ...)
     draw_string(menu_buf, mfont, MENU_TITLE_X, MENU_TITLE_Y, name);
     vsnprintf(buf, 511, fmt, pvar);
     draw_string(menu_buf, sfont, MENU_TEXT_X, MENU_TEXT_Y, buf);
-    if(yesno_menu->current == 0){
+    if(yesno_menu->current == 0) {
       draw_string(menu_buf, sfont, ALIGN_RIGHT, ALIGN_DOWN, " > Yes     No");
     }
-    else{
+    else {
       draw_string(menu_buf, sfont, ALIGN_RIGHT, ALIGN_DOWN, "   Yes  >  No");
     }
     SDL_BlitSurface(menu_buf, NULL, buffer, NULL);
@@ -629,13 +655,16 @@ static void draw_menu(GN_MENU *m)
     }
     else {
       draw_string(menu_buf, fnt, MENU_TEXT_X + 10, MENU_TEXT_Y + (j * fnt->ysize + 2), mi->name);
-      if(i == m->current)
+      if(i == m->current) {
         draw_string(menu_buf, fnt, MENU_TEXT_X, MENU_TEXT_Y + (j * fnt->ysize + 2), ">");
+      }
       if(mi->type == MENU_CHECK) {
-        if(mi->val)
-          draw_string(menu_buf, fnt, MENU_TEXT_X + 210, MENU_TEXT_Y + (j * fnt->ysize + 2), "True");
-        else
-          draw_string(menu_buf, fnt, MENU_TEXT_X + 210, MENU_TEXT_Y + (j * fnt->ysize + 2), "False");
+        if(mi->val) {
+          draw_string(menu_buf, fnt, MENU_TEXT_X + 210, MENU_TEXT_Y + (j * fnt->ysize + 2), "ON");
+        }
+        else {
+          draw_string(menu_buf, fnt, MENU_TEXT_X + 210, MENU_TEXT_Y + (j * fnt->ysize + 2), "OFF");
+        }
       }
       if(mi->type == MENU_LIST) {
         draw_string(menu_buf, fnt, MENU_TEXT_X + 210, MENU_TEXT_Y + (j * fnt->ysize + 2), mi->str);
@@ -685,7 +714,7 @@ int test_action(GN_MENU_ITEM *self, void *param)
 
 static int load_state_action(GN_MENU_ITEM *self, void *param)
 {
-  SDL_Event event={0};
+  SDL_Event event = {0};
   static uint32_t slot = 0;
   SDL_Rect dstrect = { 24 + 75, 16 + 66, 304 / 2, 224 / 2 };
   SDL_Rect dstrect_binding = { 24 + 73, 16 + 64, 304 / 2 + 4, 224 / 2 + 4 };
@@ -726,9 +755,9 @@ static int load_state_action(GN_MENU_ITEM *self, void *param)
     screen_flip();
     frame_skip();
 
-    if(SDL_PollEvent(&event)){
-      if(event.type == SDL_KEYDOWN){
-        switch(event.key.keysym.sym){
+    if(SDL_PollEvent(&event)) {
+      if(event.type == SDL_KEYDOWN) {
+        switch(event.key.keysym.sym) {
         case SDLK_LEFT:
           if(slot > 0) {
             slot--;
@@ -758,7 +787,7 @@ static int load_state_action(GN_MENU_ITEM *self, void *param)
 static int save_state_action(GN_MENU_ITEM *self, void *param)
 {
   static uint32_t slot = 0;
-  SDL_Event event={0};
+  SDL_Event event = {0};
   SDL_Rect dstrect = { 24 + 75, 16 + 66, 304 / 2, 224 / 2 };
   SDL_Rect dstrect_binding = { 24 + 73, 16 + 64, 304 / 2 + 4, 224 / 2 + 4 };
   SDL_Surface *tmps, *slot_img = NULL;
@@ -802,9 +831,9 @@ static int save_state_action(GN_MENU_ITEM *self, void *param)
     screen_flip();
     frame_skip();
 
-    if(SDL_PollEvent(&event)){
-      if(event.type == SDL_KEYDOWN){
-        switch(event.key.keysym.sym){
+    if(SDL_PollEvent(&event)) {
+      if(event.type == SDL_KEYDOWN) {
+        switch(event.key.keysym.sym) {
         case SDLK_LEFT:
           if(slot > 0) {
             slot--;
@@ -853,11 +882,11 @@ int menu_event_handling(struct GN_MENU *self)
   int a;
   LIST *l;
   GN_MENU_ITEM *mi;
-  SDL_Event event={0};
+  SDL_Event event = {0};
 
-  if(SDL_PollEvent(&event)){
-    if(event.type == SDL_KEYDOWN){
-      switch(event.key.keysym.sym){
+  if(SDL_PollEvent(&event)) {
+    if(event.type == SDL_KEYDOWN) {
+      switch(event.key.keysym.sym) {
       case SDLK_UP:
         if(self->current > 0) {
           self->current--;
@@ -893,8 +922,7 @@ int menu_event_handling(struct GN_MENU *self)
       case SDLK_SPACE:
         mi = gn_menu_get_item_by_index(self, self->current);
         if(mi && mi->action) {
-          if((a = mi->action(mi, NULL)) > 0)
-          {
+          if((a = mi->action(mi, NULL)) > 0) {
             return a;
           }
         }
@@ -1020,10 +1048,12 @@ int rom_browser_scanning_anim(void *data)
   int i = 0;
   while(scaning) {
     draw_back();
-    if(i > 20)
+    if(i > 20) {
       draw_string(menu_buf, sfont, MENU_TITLE_X, MENU_TITLE_Y, "Scanning ...");
-    else
+    }
+    else {
       draw_string(menu_buf, sfont, MENU_TITLE_X, MENU_TITLE_Y, "Scanning");
+    }
     SDL_BlitSurface(menu_buf, NULL, buffer, NULL);
     screen_flip();
     frame_skip();
@@ -1113,7 +1143,7 @@ void init_rom_browser_menu(void)
               rbrowser_menu->item = list_insert_sort(rbrowser_menu->item, gn_menu_create_item(drv->longname, MENU_ACTION, loadrom_action, strdup(filename)), romnamesort);
               rbrowser_menu->nb_elem++;
               nb_roms++;
-              free(drv);
+              //free(drv);
             }
             continue;
           }
@@ -1126,7 +1156,7 @@ void init_rom_browser_menu(void)
               if((drv = dr_check_zip(filename)) != NULL) {
                 rbrowser_menu->item = list_insert_sort(rbrowser_menu->item, gn_menu_create_item(drv->longname, MENU_ACTION, loadrom_action, strdup(drv->name)), romnamesort);
                 rbrowser_menu->nb_elem++;
-                free(drv);
+                //free(drv);
                 nb_roms++;
               }
             }
@@ -1156,7 +1186,7 @@ int rom_browser_menu(void)
     init = 1;
 
     apath = realpath(rpath, NULL);
-    if(apath == NULL){
+    if(apath == NULL) {
       apath = realpath(".", NULL);
     }
     snprintf(CF_STR(cf_get_item_by_name("rompath")), CF_MAXSTRLEN, "%s", apath);
@@ -1199,82 +1229,60 @@ static int toggle_showfps(GN_MENU_ITEM *self, void *param)
   return MENU_STAY;
 }
 
-static int change_samplerate_action(GN_MENU_ITEM *self, void *param)
+static int toggle_sound(GN_MENU_ITEM *self, void *param)
 {
-  int rate = (int) self->arg;
-
-  if(rate != 0) {
-
-    CF_VAL(cf_get_item_by_name("samplerate")) = rate;
-    cf_item_has_been_changed(cf_get_item_by_name("samplerate"));
-    if(conf.sound && conf.game) {
-      close_sdl_audio();
-    }
-    else {
-      cf_item_has_been_changed(cf_get_item_by_name("sound"));
-    }
-    conf.sound = 1;
-    CF_BOOL(cf_get_item_by_name("sound")) = 1;
-    conf.sample_rate = rate;
-    if(conf.game) {
-      init_sdl_audio();
-      YM2610ChangeSamplerate(conf.sample_rate);
-    }
-
+  if(conf.sound && conf.game) {
+    close_sdl_audio();
   }
-  else {
-    if(conf.sound) {
-      cf_item_has_been_changed(cf_get_item_by_name("sound"));
-    }
-    conf.sound = 0;
-    conf.sample_rate = 0;
-    if(conf.game) {
-      close_sdl_audio();
-    }
-    CF_BOOL(cf_get_item_by_name("sound")) = 0;
+  self->val = 1 - self->val;
+  conf.sound = self->val;
+  cf_item_has_been_changed(cf_get_item_by_name("sound"));
+  CF_BOOL(cf_get_item_by_name("sound")) = self->val;
+  if(conf.game) {
+    init_sdl_audio();
+    YM2610ChangeSamplerate(SAMPLE_RATE);
   }
+  return MENU_STAY;
+}
 
+static int set_a_button_action(GN_MENU_ITEM *self, void *param)
+{
+  int sel = (int)self->arg;
+
+  conf.a_btn = sel;
+  CF_VAL(cf_get_item_by_name("a_btn")) = sel;
+  cf_item_has_been_changed(cf_get_item_by_name("a_btn"));
   return MENU_CLOSE;
 }
 
-static int change_samplerate(GN_MENU_ITEM *self, void *param)
+static int set_b_button_action(GN_MENU_ITEM *self, void *param)
 {
-  static int init = 0;
-  GN_MENU_ITEM *gitem=NULL;
+  int sel = (int)self->arg;
 
-  if(init == 0) {
-    init = 1;
-    srate_menu = create_menu("Choose a sample rate", MENU_SMALL, NULL, NULL);
-    gitem = gn_menu_create_item("No sound", MENU_ACTION, change_samplerate_action, (void *) 0);
-    srate_menu->item = list_append(srate_menu->item, (void *) gitem);
-    srate_menu->nb_elem++;
+  conf.b_btn = sel;
+  CF_VAL(cf_get_item_by_name("b_btn")) = sel;
+  cf_item_has_been_changed(cf_get_item_by_name("b_btn"));
+  return MENU_CLOSE;
+}
 
-    gitem = gn_menu_create_item("11025 KHz", MENU_ACTION, change_samplerate_action, (void *) 11025);
-    srate_menu->item = list_append(srate_menu->item, (void *) gitem);
-    srate_menu->nb_elem++;
+static int set_x_button_action(GN_MENU_ITEM *self, void *param)
+{
+  int sel = (int)self->arg;
 
-    gitem = gn_menu_create_item("22050 KHz", MENU_ACTION, change_samplerate_action, (void *) 22050);
-    srate_menu->item = list_append(srate_menu->item, (void *) gitem);
-    srate_menu->nb_elem++;
+  conf.x_btn = sel;
+  CF_VAL(cf_get_item_by_name("x_btn")) = sel;
+  cf_item_has_been_changed(cf_get_item_by_name("x_btn"));
+  return MENU_CLOSE;
+}
 
-    gitem = gn_menu_create_item("44100 KHz", MENU_ACTION, change_samplerate_action, (void *) 44100);
-    srate_menu->item = list_append(srate_menu->item, (void *) gitem);
-    srate_menu->nb_elem++;
-  }
+static int set_y_button_action(GN_MENU_ITEM *self, void *param)
+{
+  int sel = (int)self->arg;
 
-  while(1) {
-    srate_menu->draw(srate_menu);
-    if(srate_menu->event_handling(srate_menu) > 0) {
-      if(conf.sound) {
-        sprintf(self->str, "%d", conf.sample_rate);
-      }
-      else {
-        sprintf(self->str, "No sound");
-      }
-      return MENU_STAY;
-    }
-  }
-  return 0;
+  conf.y_btn = sel;
+  CF_VAL(cf_get_item_by_name("y_btn")) = sel;
+  cf_item_has_been_changed(cf_get_item_by_name("y_btn"));
+  return MENU_CLOSE;
 }
 
 static int set_l_button_action(GN_MENU_ITEM *self, void *param)
@@ -1297,60 +1305,53 @@ static int set_r_button_action(GN_MENU_ITEM *self, void *param)
   return MENU_CLOSE;
 }
 
-static int set_lr_button(GN_MENU_ITEM *self, void *param)
+static int set_abxylr_button(GN_MENU_ITEM *self, void *param)
 {
-  static int l_init = 0;
-  static int r_init = 0;
-  GN_MENU_ITEM *gitem=NULL;
-  int i=0, lr_sel=(int)self->arg;
+  static int init[6] = {0};
+  GN_MENU_ITEM *gitem = NULL;
+  int i = 0, sel = (int)self->arg;
+  int (*func_ptr[])(GN_MENU_ITEM*, void*) = {
+    set_a_button_action,
+    set_b_button_action,
+    set_x_button_action,
+    set_y_button_action,
+    set_l_button_action,
+    set_r_button_action,
+  };
 
-  if(lr_sel == 0){
-    if(l_init == 0) {
-      l_init = 1;
-      lbtn_menu = create_menu("Choose a button for L", MENU_SMALL, NULL, NULL);
-      for(i=0; i<16; i++){
-        gitem = gn_menu_create_item(lr_btn_string[i], MENU_ACTION, set_l_button_action, (void*)i);
-        lbtn_menu->item = list_append(lbtn_menu->item, gitem);
-        lbtn_menu->nb_elem+= 1;
-      }
-    }
-  }
-  else{
-    if(r_init == 0) {
-      r_init = 1;
-      rbtn_menu = create_menu("Choose a button for R", MENU_SMALL, NULL, NULL);
-      for(i=0; i<16; i++){
-        gitem = gn_menu_create_item(lr_btn_string[i], MENU_ACTION, set_r_button_action, (void*)i);
-        rbtn_menu->item = list_append(rbtn_menu->item, gitem);
-        rbtn_menu->nb_elem+= 1;
-      }
+  char* mstr[6]={
+    "Choose Button for A",
+    "Choose Button for B",
+    "Choose Button for X",
+    "Choose Button for Y",
+    "Choose Button for L",
+    "Choose Button for R",
+  };
+
+  if(init[sel] == 0) {
+    init[sel] = 1;
+    btn_menu[sel] = create_menu(mstr[sel], MENU_SMALL, NULL, NULL);
+    for(i = 0; i < 16; i++) {
+      gitem = gn_menu_create_item(abxylr_btn_string[i], MENU_ACTION, func_ptr[sel], (void *)i);
+      btn_menu[sel]->item = list_append(btn_menu[sel]->item, gitem);
+      btn_menu[sel]->nb_elem += 1;
     }
   }
 
   while(1) {
-    if(lr_sel == 0){
-      lbtn_menu->draw(lbtn_menu);
-      if(lbtn_menu->event_handling(lbtn_menu) > 0) {
-        if(lr_sel == 0){
-          sprintf(self->str, "%s", lr_btn_string[conf.l_btn]);
-        }
-        else{
-          sprintf(self->str, "%s", lr_btn_string[conf.r_btn]);
-        }
-        return MENU_STAY;
+    int ssel=0;
+    btn_menu[sel]->draw(btn_menu[sel]);
+    if(btn_menu[sel]->event_handling(btn_menu[sel]) > 0) {
+      switch(sel){
+      case 0: ssel = conf.a_btn; break;
+      case 1: ssel = conf.b_btn; break;
+      case 2: ssel = conf.x_btn; break;
+      case 3: ssel = conf.y_btn; break;
+      case 4: ssel = conf.l_btn; break;
+      case 5: ssel = conf.r_btn; break;
       }
-    }
-    else{
-      rbtn_menu->draw(rbtn_menu);
-      if(rbtn_menu->event_handling(rbtn_menu) > 0) {
-        if(lr_sel == 0){
-          sprintf(self->str, "%s", lr_btn_string[conf.l_btn]);
-        }
-        else{
-          sprintf(self->str, "%s", lr_btn_string[conf.r_btn]);
-        }
-        return MENU_STAY;
-      }
+      sprintf(self->str, "%s", abxylr_btn_string[ssel]);
+      return MENU_STAY;
     }
   }
   return 0;
@@ -1380,18 +1381,18 @@ if (gitem) gitem->val = CF_BOOL(cf_get_item_by_name(id));
 static void reset_menu_option(void)
 {
   GN_MENU_ITEM *gitem;
-  gitem = gn_menu_get_item_by_name(option_menu, "Sample Rate");
-  if(conf.sound) {
-    sprintf(gitem->str, "%d", conf.sample_rate);
-  }
-  else {
-    sprintf(gitem->str, "No sound");
-  }
-
+  gitem = gn_menu_get_item_by_name(option_menu, "Set A Button");
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.a_btn]);
+  gitem = gn_menu_get_item_by_name(option_menu, "Set B Button");
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.b_btn]);
+  gitem = gn_menu_get_item_by_name(option_menu, "Set X Button");
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.x_btn]);
+  gitem = gn_menu_get_item_by_name(option_menu, "Set Y Button");
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.y_btn]);
   gitem = gn_menu_get_item_by_name(option_menu, "Set L Button");
-  sprintf(gitem->str, "%s", lr_btn_string[conf.l_btn]);
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.l_btn]);
   gitem = gn_menu_get_item_by_name(option_menu, "Set R Button");
-  sprintf(gitem->str, "%s", lr_btn_string[conf.r_btn]);
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.r_btn]);
 }
 
 static int option_action(GN_MENU_ITEM *self, void *param)
@@ -1434,34 +1435,53 @@ void gn_init_menu(void)
   option_menu->item = list_append(option_menu->item, gitem);
   option_menu->nb_elem++;
 
-  gitem = gn_menu_create_item("Sample Rate", MENU_LIST, change_samplerate, NULL);
+  gitem = gn_menu_create_item("Enable Sound", MENU_CHECK, toggle_sound, NULL);
+  gitem->val = CF_BOOL(cf_get_item_by_name("sound"));
+  option_menu->item = list_append(option_menu->item, gitem);
+  option_menu->nb_elem++;
+
+  gitem = gn_menu_create_item("Set A Button", MENU_LIST, set_abxylr_button, (void *)0);
   gitem->str = malloc(32);
-  if(conf.sound) {
-    sprintf(gitem->str, "%d", conf.sample_rate);
-  }
-  else {
-    sprintf(gitem->str, "No sound");
-  }
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.a_btn]);
   option_menu->item = list_append(option_menu->item, gitem);
   option_menu->nb_elem++;
 
-  gitem = gn_menu_create_item("Set L Button", MENU_LIST, set_lr_button, (void*)0);
+  gitem = gn_menu_create_item("Set B Button", MENU_LIST, set_abxylr_button, (void *)1);
   gitem->str = malloc(32);
-  sprintf(gitem->str, "%s", lr_btn_string[conf.l_btn]);
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.b_btn]);
   option_menu->item = list_append(option_menu->item, gitem);
   option_menu->nb_elem++;
 
-  gitem = gn_menu_create_item("Set R Button", MENU_LIST, set_lr_button, (void*)1);
+  gitem = gn_menu_create_item("Set X Button", MENU_LIST, set_abxylr_button, (void *)2);
   gitem->str = malloc(32);
-  sprintf(gitem->str, "%s", lr_btn_string[conf.r_btn]);
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.x_btn]);
   option_menu->item = list_append(option_menu->item, gitem);
   option_menu->nb_elem++;
 
-  gitem = gn_menu_create_item("Save conf for every game", MENU_ACTION, save_conf_action, (void*)0);
+  gitem = gn_menu_create_item("Set Y Button", MENU_LIST, set_abxylr_button, (void *)3);
+  gitem->str = malloc(32);
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.y_btn]);
   option_menu->item = list_append(option_menu->item, gitem);
   option_menu->nb_elem++;
 
-  gitem = gn_menu_create_item("Save conf for this game", MENU_ACTION, save_conf_action, (void*)1);
+  gitem = gn_menu_create_item("Set L Button", MENU_LIST, set_abxylr_button, (void *)4);
+  gitem->str = malloc(32);
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.l_btn]);
+  option_menu->item = list_append(option_menu->item, gitem);
+  option_menu->nb_elem++;
+
+  gitem = gn_menu_create_item("Set R Button", MENU_LIST, set_abxylr_button, (void *)5);
+  gitem->str = malloc(32);
+  sprintf(gitem->str, "%s", abxylr_btn_string[conf.r_btn]);
+  option_menu->item = list_append(option_menu->item, gitem);
+  option_menu->nb_elem++;
+
+
+  gitem = gn_menu_create_item("Save conf for every game", MENU_ACTION, save_conf_action, (void *)0);
+  option_menu->item = list_append(option_menu->item, gitem);
+  option_menu->nb_elem++;
+
+  gitem = gn_menu_create_item("Save conf for this game", MENU_ACTION, save_conf_action, (void *)1);
   option_menu->item = list_append(option_menu->item, gitem);
   option_menu->nb_elem++;
 
@@ -1503,8 +1523,7 @@ uint32_t run_menu(void)
 
   while(1) {
     main_menu->draw(main_menu);
-    if((a = main_menu->event_handling(main_menu)) > 0)
-    {
+    if((a = main_menu->event_handling(main_menu)) > 0) {
       return a;
     }
   }

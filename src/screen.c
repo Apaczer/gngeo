@@ -29,10 +29,10 @@
 #include "gnutil.h"
 #include "screen.h"
 
-SDL_Surface *buffer=NULL;
-SDL_Surface *screen=NULL;
-SDL_Surface *fontbuf=NULL;
-SDL_Rect visible_area={0};
+SDL_Surface *buffer = NULL;
+SDL_Surface *screen = NULL;
+SDL_Surface *fontbuf = NULL;
+SDL_Rect visible_area = {0};
 
 static SDL_Rect drt = {0, 8, 320, 224};
 static SDL_Rect left_border = {16, 16, 8, 224};
@@ -40,7 +40,7 @@ static SDL_Rect right_border = {16 + 312, 16, 8, 224};
 
 void screen_flip(void)
 {
-  SDL_FillRect(buffer, &left_border, 0); 
+  SDL_FillRect(buffer, &left_border, 0);
   SDL_FillRect(buffer, &right_border, 0);
   SDL_BlitSurface(buffer, &visible_area, screen, &drt);
   SDL_Flip(screen);
@@ -50,7 +50,7 @@ void sdl_init(void)
 {
   SDL_Init(SDL_INIT_VIDEO);
   atexit(SDL_Quit);
-  
+
   visible_area.x = 16;
   visible_area.y = 16;
   visible_area.w = 320;

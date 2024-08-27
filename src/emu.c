@@ -119,20 +119,9 @@ void init_sound(void)
     init_sdl_audio();
   }
 
-#ifdef ENABLE_940T
-  printf("Init all neo");
-  shared_data->sample_rate = conf.sample_rate;
-  shared_data->z80_cycle = (z80_overclk == 0 ? 73333 : 73333
-                            + (z80_overclk * 73333 / 100.0));
-  //gp2x_add_job940(JOB940_INITALL);
-  gp2x_add_job940(JOB940_INITALL);
-  wait_busy_940(JOB940_INITALL);
-  printf("The YM2610 have been initialized\n");
-#else
   cpu_z80_init();
   //streams_sh_start();
   YM2610_sh_start();
-#endif
   if(conf.sound)	{
     pause_audio(0);
   }
@@ -141,23 +130,10 @@ void init_sound(void)
 
 void init_neo(void)
 {
-#ifdef ENABLE_940T
-  int z80_overclk = CF_VAL(cf_get_item_by_name("z80clock"));
-#endif
-
   neogeo_init_save_state();
-
-#ifdef GP2X
-  gp2x_ram_ptr_reset();
-#endif
-
   cpu_68k_init();
-//	neogeo_reset();
   pd4990a_init();
-//	setup_misc_patch(rom_name);
-
   init_sound();
-
   neogeo_reset();
 }
 
@@ -180,13 +156,8 @@ static void take_screenshot(void)
 
   time(&ltime);
   today = localtime(&ltime);
-#if defined (__AMIGA__)
-  strftime(date_str, 100, "%Y%m%d_%H%M", today);
-  snprintf(buf, 255, "%s/%s_%s.bmp", "/PROGDIR/shots", conf.game, date_str);
-#else
   strftime(date_str, 100, "%a_%b_%d_%T_%Y", today);
   snprintf(buf, 255, "%s/%s_%s.bmp", getenv("HOME"), conf.game, date_str);
-#endif
   printf("save to %s\n", buf);
 
   SDL_BlitSurface(buffer, &visible_area, shoot, &screen_rect);
@@ -285,8 +256,8 @@ static int slow_motion = 0;
 void main_loop(void)
 {
   int neo_emu_done = 0;
-  int m68k_overclk = CF_VAL(cf_get_item_by_name("68kclock"));
-  int z80_overclk = CF_VAL(cf_get_item_by_name("z80clock"));
+  int m68k_overclk = 0;
+  int z80_overclk = 0;
   int a, i;
   static SDL_Rect buf_rect = { 24, 16, 304, 224 };
   static SDL_Rect screen_rect = { 0, 0, 304, 224 };
@@ -323,7 +294,7 @@ void main_loop(void)
         my_timer();
       }
     }
-    
+
     tm_cycle = cpu_68k_run(cpu_68k_timeslice - tm_cycle);
     a = neo_interrupt();
     memory.watchdog++;
@@ -365,11 +336,3 @@ void cpu_68k_dpg_step(void)
   }
 }
 
-void debug_loop(void)
-{
-  int a;
-  do {
-    a = cpu_68k_debuger(cpu_68k_dpg_step, /*dump_hardware_reg*/NULL);
-  }
-  while(a != -1);
-}
