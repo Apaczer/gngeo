@@ -1,4 +1,5 @@
 /*
+ *  Copyright (C) 2023 GXB
  *  Copyright (C) 2021 Steward Fu
  *  Copyright (C) 2001 Peponas Mathieu
  *
@@ -50,8 +51,8 @@ void cf_cache_conf(void)
   conf.y_btn = CF_VAL(cf_get_item_by_name("y_btn"));
   conf.l_btn = CF_VAL(cf_get_item_by_name("l_btn"));
   conf.r_btn = CF_VAL(cf_get_item_by_name("r_btn"));
-  conf.system = SYS_ARCADE;
-  conf.country = CTY_EUROPE;
+  conf.system = SYS_UNIBIOS; //根据roms.c里的代码，可选项有SYS_UNIBIOS、SYS_HOME以及SYS_ARCADE，考虑到设置难度等选项，默认SYS_HOME比较好。
+  conf.country = CTY_JAPAN; //根据roms.c里的代码，可选项有:CTY_JAPAN、CTY_USA、CTY_ASIA、CTY_EUROPE。
 }
 
 static void read_array(int *tab, char *val, int size)

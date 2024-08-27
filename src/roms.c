@@ -1,3 +1,23 @@
+/*
+ *  Copyright (C) 2023 GXB
+ *  Copyright (C) 2021 Steward Fu
+ *  Copyright (C) 2001 Peponas Mathieu
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+ 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -895,6 +915,18 @@ static DRIVER_INIT(kog)
   DRIVER_INIT_CALL(neogeo);
 }
 
+static DRIVER_INIT(kogplus) //直接添加就OK？？？
+{
+  /* overlay cartridge ROM */
+  memory_install_read_port_handler(cputag_get_address_space(machine, "maincpu",
+                                   ADDRESS_SPACE_PROGRAM), 0x0ffffe, 0x0fffff, 0, 0, "JUMPER");
+
+  kog_px_decrypt(machine);
+  neogeo_bootleg_sx_decrypt(machine, 1);
+  neogeo_bootleg_cx_decrypt(machine);
+  DRIVER_INIT_CALL(neogeo);
+}
+
 static DRIVER_INIT(lans2004)
 {
   lans2004_decrypt_68k(machine);
@@ -1356,6 +1388,7 @@ int dr_load_bios(GAME_ROMS *r)
   convert_all_char(memory.rom.bios_sfix.p, 0x20000, memory.fix_board_usage);
 
   if(!(r->info.flags & HAS_CUSTOM_CPU_BIOS)) {
+	//conf.system = SYS_UNIBIOS; // 强制使用UNIBIOS！
     if(conf.system == SYS_UNIBIOS) {
       char *unipath;
 
@@ -1421,28 +1454,22 @@ error:
 
 ROM_DEF *dr_check_zip(const char *filename)
 {
-
   char *z;
   ROM_DEF *drv;
-#ifdef HAVE_BASENAME
   char *game = strdup(basename(filename));
-#else
-  char *game = strdup(strrchr(filename, '/'));
-#endif
   printf("check rom=%s\n", game);
   if(game == NULL) {
     return NULL;
   }
   z = strstr(game, ".zip");
-  //	printf("z=%s\n", game);
   if(z == NULL) {
     free(game);
     return NULL;
   }
-  z[0] = 0;
+  z[0] = 0; 
   drv = res_load_drv(game);
   free(game);
-  return drv;
+  return drv; 
 }
 
 int dr_load_roms(GAME_ROMS *r, char *rom_path, char *name)

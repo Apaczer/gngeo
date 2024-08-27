@@ -1,4 +1,5 @@
 /*
+ *  Copyright (C) 2023 GXB
  *  Copyright (C) 2021 Steward Fu
  *  Copyright (C) 2001 Peponas Mathieu
  *
@@ -143,18 +144,24 @@ int handle_event(void)
         break;
       case SDLK_ESCAPE:
         if(event.type == SDL_KEYDOWN) {
-          memory.intern_coin &= ~(1 << 0);
+          //memory.intern_coin &= ~(1 << 0);
+		  memory.intern_coin = 0x07&0x06;
+		  memory.intern_start = 0x8F&0xFD;  //支持UNIBIOS投币
         }
         else {
-          memory.intern_coin |= (1 << 0);
+          //memory.intern_coin |= (1 << 0);
+		  memory.intern_coin = 0x07;
+		  memory.intern_start = 0x8F;  //支持UNIBIOS投币
         }
         break;
       case SDLK_RETURN:
         if(event.type == SDL_KEYDOWN) {
-          memory.intern_start &= ~(1 << 0);
+          //memory.intern_start &= ~(1 << 0);
+		  memory.intern_start = 0x8F&0xFE;
         }
         else {
-          memory.intern_start |= (1 << 0);
+          //memory.intern_start |= (1 << 0);
+		  memory.intern_start = 0x8F;
         }
         break;
       case SDLK_TAB:

@@ -1,4 +1,5 @@
 /*
+ *  Copyright (C) 2023 GXB
  *  Copyright (C) 2021 Steward Fu
  *  Copyright (C) 2001 Peponas Mathieu
  *
@@ -127,36 +128,38 @@ static GN_MENU *yesno_menu=NULL;
 static GN_MENU *rbrowser_menu=NULL;
 
 static char *romlist[] = {
-  "/2020bb.zip",   "/2020bba.zip",  "/2020bbh.zip",  "/3countb.zip",   "/alpham2.zip",   "/androdun.zip",  "/aodk.zip",      "/aof.zip",
-  "/aof2.zip",     "/aof2a.zip",    "/aof3.zip",     "/aof3k.zip",     "/bakatono.zip",  "/bangbead.zip",  "/bjourney.zip",  "/blazstar.zip",
-  "/breakers.zip", "/breakrev.zip", "/bstars.zip",   "/bstars2.zip",   "/burningf.zip",  "/burningfh.zip", "/crsword.zip",   "/ct2k3sa.zip",
-  "/ct2k3sp.zip",  "/cthd2003.zip", "/ctomaday.zip", "/cyberlip.zip",  "/diggerma.zip",  "/doubledr.zip",  "/eightman.zip",  "/fatfursa.zip",
-  "/fatfursp.zip", "/fatfury1.zip", "/fatfury2.zip", "/fatfury3.zip",  "/fbfrenzy.zip",  "/fightfev.zip",  "/fightfeva.zip", "/flipshot.zip",
-  "/fswords.zip",  "/galaxyfg.zip", "/ganryu.zip",   "/garou.zip",     "/garoubl.zip",   "/garouo.zip",    "/garoup.zip",    "/ghostlop.zip",
-  "/goalx3.zip",   "/gowcaizr.zip", "/gpilots.zip",  "/gpilotsh.zip",  "/gururin.zip",   "/irrmaze.zip",   "/janshin.zip",   "/jockeygp.zip",
-  "/joyjoy.zip",   "/kabukikl.zip", "/karnovr.zip",  "/kf10thep.zip",  "/kf2k2mp.zip",   "/kf2k2mp2.zip",  "/kf2k2pla.zip",  "/kf2k2pls.zip",
-  "/kf2k3bl.zip",  "/kf2k3bla.zip", "/kf2k3pcb.zip", "/kf2k3pl.zip",   "/kf2k3upl.zip",  "/kf2k5uni.zip",  "/kizuna.zip",    "/kof10th.zip",
-  "/kof2000.zip",  "/kof2000n.zip", "/kof2001.zip",  "/kof2001h.zip",  "/kof2002.zip",   "/kof2002b.zip",  "/kof2003.zip",   "/kof2003h.zip",
-  "/kof2k4se.zip", "/kof94.zip",    "/kof95.zip",    "/kof95h.zip",    "/kof96.zip",     "/kof96h.zip",    "/kof97.zip",     "/kof97a.zip",
-  "/kof97pls.zip", "/kof98.zip",    "/kof98k.zip",   "/kof98n.zip",    "/kof99.zip",     "/kof99a.zip",    "/kof99e.zip",    "/kof99n.zip",
-  "/kof99p.zip",   "/kog.zip",      "/kotm.zip",     "/kotm2.zip",     "/kotmh.zip",     "/lans2004.zip",  "/lastblad.zip",  "/lastbladh.zip",
-  "/lastbld2.zip", "/lastsold.zip", "/lbowling.zip", "/legendos.zip",  "/lresort.zip",   "/magdrop2.zip",  "/magdrop3.zip",  "/maglord.zip",
-  "/maglordh.zip", "/mahretsu.zip", "/marukodq.zip", "/matrim.zip",    "/matrimbl.zip",  "/miexchng.zip",  "/minasan.zip",   "/mosyougi.zip",
-  "/ms4plus.zip",  "/ms5pcb.zip",   "/ms5plus.zip",  "/mslug.zip",     "/mslug2.zip",    "/mslug3.zip",    "/mslug3b6.zip",  "/mslug3h.zip",
-  "/mslug3n.zip",  "/mslug4.zip",   "/mslug5.zip",   "/mslug5h.zip",   "/mslugx.zip",    "/mutnat.zip",    "/nam1975.zip",   "/ncombat.zip",
-  "/ncombath.zip", "/ncommand.zip", "/neobombe.zip", "/neocup98.zip",  "/neodrift.zip",  "/neomrdo.zip",   "/ninjamas.zip",  "/nitd.zip",
-  "/nitdbl.zip",   "/overtop.zip",  "/panicbom.zip", "/pbobbl2n.zip",  "/pbobblen.zip",  "/pbobblena.zip", "/pgoal.zip",     "/pnyaa.zip",
-  "/popbounc.zip", "/preisle2.zip", "/pspikes2.zip", "/pulstar.zip",   "/puzzldpr.zip",  "/puzzledp.zip",  "/quizdai2.zip",  "/quizdais.zip",
-  "/quizkof.zip",  "/ragnagrd.zip", "/rbff1.zip",    "/rbff1a.zip",    "/rbff2.zip",     "/rbff2h.zip",    "/rbff2k.zip",    "/rbffspec.zip",
-  "/ridhero.zip",  "/ridheroh.zip", "/roboarmy.zip", "/rotd.zip",      "/s1945p.zip",    "/samsh5sp.zip",  "/samsh5sph.zip", "/samsh5spn.zip",
-  "/samsho.zip",   "/samsho2.zip",  "/samsho3.zip",  "/samsho3h.zip",  "/samsho4.zip",   "/samsho5.zip",   "/samsho5b.zip",  "/samsho5h.zip",
-  "/samshoh.zip",  "/savagere.zip", "/sdodgeb.zip",  "/sengokh.zip",   "/sengoku.zip",   "/sengoku2.zip",  "/sengoku3.zip",  "/shocktr2.zip",
-  "/shocktra.zip", "/shocktro.zip", "/socbrawl.zip", "/socbrawla.zip", "/sonicwi2.zip",  "/sonicwi3.zip",  "/spinmast.zip",  "/ssideki.zip",
-  "/ssideki2.zip", "/ssideki3.zip", "/ssideki4.zip", "/stakwin.zip",   "/stakwin2.zip",  "/strhoop.zip",   "/superspy.zip",  "/svc.zip",
-  "/svcboot.zip",  "/svcpcb.zip",   "/svcpcba.zip",  "/svcplus.zip",   "/svcplusa.zip",  "/svcsplus.zip",  "/tophuntr.zip",  "/tophuntra.zip",
-  "/tpgolf.zip",   "/trally.zip",   "/turfmast.zip", "/twinspri.zip",  "/tws96.zip",     "/viewpoin.zip",  "/vliner.zip",    "/vlinero.zip",
-  "/wakuwak7.zip", "/wh1.zip",      "/wh1h.zip",     "/wh1ha.zip",     "/wh2.zip",       "/wh2j.zip",      "/wh2jh.zip",     "/whp.zip",
-  "/wjammers.zip", "/zedblade.zip", "/zintrckb.zip", "/zupapa.zip",    NULL
+	"/nam1975.zip",	"/bstars.zip",	"/tpgolf.zip",	"/mahretsu.zip",	"/alpham2.zip",	"/cyberlip.zip",	"/superspy.zip",	"/mutnat.zip",
+	"/kotm.zip",	"/sengoku.zip",	"/burningf.zip",	"/lbowling.zip",	"/gpilots.zip",	"/joyjoy.zip",	"/quizdais.zip",	"/lresort.zip",
+	"/eightman.zip",	"/legendos.zip",	"/2020bb.zip",	"/socbrawl.zip",	"/roboarmy.zip",	"/fatfury1.zip",	"/fbfrenzy.zip",	"/kotm2.zip",
+	"/sengoku2.zip",	"/bstars2.zip",	"/quizdai2.zip",	"/3countb.zip",	"/aof.zip",	"/samsho.zip",	"/tophuntr.zip", 
+	"/kof94.zip",	"/aof2.zip",	"/fatfursp.zip",	"/savagere.zip",	"/ssideki2.zip",	"/samsho2.zip",	"/fatfury3.zip",	"/ssideki3.zip",
+	"/kof95.zip",	"/samsho3.zip",	"/rbff1.zip",	"/aof3.zip",	"/kof96.zip",	"/ssideki4.zip",	"/kizuna.zip",	"/samsho4.zip",
+	"/rbffspec.zip",	"/kof97.zip",	"/kof97pls.zip", "/lastblad.zip",	"/irrmaze.zip",	"/rbff2.zip",
+	"/mslug2.zip",	"/kof98h.zip",	"/lastbld2.zip",	"/neocup98.zip",	"/mslugx.zip",	"/kof99p.zip",	"/garoup.zip",	"/maglord.zip",
+	"/ncombat.zip",	"/bjourney.zip",	"/crsword.zip",	"/trally.zip",	"/ncommand.zip",	"/wh1.zip",	"/wh2.zip",	"/wh2j.zip",
+	"/aodk.zip",	"/whp.zip",	"/moshougi.zip",	"/overtop.zip",	"/ninjamas.zip",	"/twinspri.zip",	"/zintrckb.zip",	"/viewpoin.zip",
+	"/janshin.zip",	"/pulstar.zip",	"/blazstar.zip",	"/spinmast.zip",	"/wjammers.zip",	"/karnovr.zip",	"/strhoop.zip",	"/ghostlop.zip",
+	"/magdrop2.zip",	"/magdrop3.zip",	"/nitdbl.zip",	"/gururin.zip",	"/miexchng.zip",	"/panicbom.zip",	"/kabukikl.zip",	"/neobombe.zip",
+	"/minasan.zip",	"/bakatono.zip",	"/turfmast.zip",	"/mslug.zip",	"/zedblade.zip",	"/quizkof.zip",	"/stakwin.zip",	"/ragnagrd.zip",
+	"/pgoal.zip",	"/ironclad.zip",	"/stakwin2.zip",	"/shocktro.zip",	"/shocktr2.zip",	"/galaxyfg.zip",	"/wakuwak7.zip",	"/pbobblen.zip",
+	"/pbobbl2n.zip",	"/marukodq.zip",	"/doubledr.zip",	"/gowcaizr.zip",	"/sdodgeb.zip",	"/twsoc96.zip",	"/fightfev.zip",	"/pspikes2.zip",
+	"/sonicwi2.zip",	"/sonicwi3.zip",	"/popbounc.zip",	"/androdun.zip",	"/b2b.zip",	"/puzzledp.zip",	"/neomrdo.zip",	"/goalx3.zip",
+	"/neodrift.zip",	"/breakers.zip",	"/puzzldpr.zip",	"/breakrev.zip",	"/flipshot.zip",	"/ctomaday.zip",	"/diggerma.zip",	"/samsh5fe.zip",
+	"/xenocrisis.zip",	"/aof2bh.zip",	"/aof3bh.zip",	"/blazstarcm.zip",	"/breakrevbh.zip",	"/brkrevext.zip",	"/19yy.zip",	"/19yyo.zip",
+	"/cakefght.zip",	"/crswd2bl.zip",	"/doubledrbh.zip",	"/kabukiklb.zip",	"/fatfury1bh.zip",	"/fatfurspbs.zip",	"/fatfury3bh.zip",	"/froman2b.zip",
+	"/lhcdb.zip",	"/lasthope.zip",	"/magdrop3bh.zip",	"/magdrop3te.zip",	"/mslugdg.zip",	"/mslug2dg.zip",	"/mslug2fm.zip",	"/mslug2t.zip",
+	"/mslugxsrf.zip",	"/mslug3g.zip",	"/mslug4dg.zip",	"/mslug5d.zip",	"/ninjamasha.zip",	"/rbff2bh.zip",	"/rbffspbh.zip", 
+	"/samsho4sp.zip",	"/samsho5x.zip",	"/samsh5pf.zip",	"/savagereb.zip",	"/sengoku3s.zip",	"/sdodgebh.zip",	"/kof94rz.zip",	"/kof95b.zip",
+	"/kof96ae.zip",	"/kof96ae20.zip",	"/kof96cn.zip",	"/kof96rp08sp.zip",	"/kof97cn.zip",	"/kof97xt.zip",	"/kof97rc.zip",	"/kof97cbt.zip",
+	"/kof97ae.zip",	"/kof97tp.zip",	"/kof97pm.zip",	"/kof97ps.zip",	"/kof97sp.zip",	"/kof98ae.zip",	"/kof98ae2016.zip",	"/kof98ult.zip",
+	"/kof98cb.zip",	"/kof98bc2nd.zip",	"/kof98ratio.zip",	"/kof99ae.zip",	"/kof2001ru.zip",	"/kf2k23rd.zip",	"/kf2k2ru35.zip",	"/kof2k2omg8.zip",
+	"/kof2k2omg9b.zip",	"/kof2k2omg9.zip",	"/kof10thd.zip",	"/kof10thuo.zip",	"/kf2k3ps2.zip",	"/lastbld2eh.zip",	"/lastbld2te.zip",	"/lb2b.zip",
+	"/totc.zip",	"/wakuwak7bh.zip",	"/zintrkcd.zip",	"/columnsn.zip",	"/ltorb.zip",	"/neonopon.zip",	"/poknight.zip",	"/neothndr.zip",
+	"/badapple.zip",	"/neotris.zip",	"/nsmb.zip",	"/nblktiger.zip",	"/teot.zip",	"/cabalng.zip",	"/looptris.zip",	"/hypernoid.zip",
+	"/mslugunity.zip",	"/mslug2unity.zip",	"/mslugxunity.zip",	"/mslug2ct.zip",	"/mslug2r.zip",	"/mslug2dd.zip",	"/mslug2p.zip",	"/mslug21v2.zip",
+	"/mslug2eg.zip",	"/mslugxc2.zip",	"/mslugxeb.zip",	"/mslugxlb.zip",	"/mslugxc1.zip",	"/mslugx1v2.zip",	"/mslugx2r.zip",	"/mslugx2reb.zip",
+	"/mslugx2r1v2.zip",	"/mslugxsc.zip",	"/kof96rss.zip",	"/kof98bc2k2.zip",	"/kof97evn.zip",	"/santaball.zip",	"/svcx.zip",	"/kof97inv21.zip",
+	"/kof97aef.zip",	NULL
 };
 
 #define COL32_TO_16(col) ((((col&0xff0000)>>19)<<11)|(((col&0xFF00)>>10)<<5)|((col&0xFF)>>3))

@@ -1,4 +1,5 @@
 /*
+ *  Copyright (C) 2023 GXB
  *  Copyright (C) 2021 Steward Fu
  *  Copyright (C) 2001 Peponas Mathieu
  *
@@ -54,16 +55,26 @@ extern SDL_Surface *buffer;
 void setup_misc_patch(char *name)
 {
 
+	if(!strcmp(name, "ssideki")) {
+		WRITE_WORD_ROM(&memory.rom.cpu_m68k.p[0x2240], 0x4e71);
+	}
+	
+	if(!strcmp(name, "kof97aef")) {
+		/* patch out protection check */
+		WRITE_WORD_ROM(&memory.rom.cpu_m68k.p[0x9b12a], 0x6038);
+	}
+	
+	// if(!strcmp(name, "kof97inv21")) {
+		// /* patch out protection check */
+		// WRITE_BYTE_ROM(&memory.rom.cpu_m68k.p[0x263ba], 0x65);
+	// }
+	
+	//if (!strcmp(name, "fatfury3")) {
+	//	WRITE_WORD_ROM(memory.rom.cpu_m68k.p, 0x0010);
+	//}
 
-  if(!strcmp(name, "ssideki")) {
-    WRITE_WORD_ROM(&memory.rom.cpu_m68k.p[0x2240], 0x4e71);
-  }
-
-  //if (!strcmp(name, "fatfury3")) {
-  //	WRITE_WORD_ROM(memory.rom.cpu_m68k.p, 0x0010);
-  //}
-
-  if(!strcmp(name, "mslugx")) {
+	//if(!strcmp(name, "mslugx")) {
+	if(strncmp(name, "mslugx", 6) == 0) { //给所有合金弹头X的子ROM及改版打补丁
     /* patch out protection checks */
     int i;
     uint8_t *RAM = memory.rom.cpu_m68k.p;
@@ -71,12 +82,10 @@ void setup_misc_patch(char *name)
       if((READ_WORD_ROM(&RAM[i + 0]) == 0x0243)
           && (READ_WORD_ROM(&RAM[i + 2]) == 0x0001) && /* andi.w  #$1, D3 */
           (READ_WORD_ROM(&RAM[i + 4]) == 0x6600)) { /* bne xxxx */
-
         WRITE_WORD_ROM(&RAM[i + 4], 0x4e71);
         WRITE_WORD_ROM(&RAM[i + 6], 0x4e71);
       }
     }
-
     WRITE_WORD_ROM(&RAM[0x3bdc], 0x4e71);
     WRITE_WORD_ROM(&RAM[0x3bde], 0x4e71);
     WRITE_WORD_ROM(&RAM[0x3be0], 0x4e71);
@@ -86,8 +95,374 @@ void setup_misc_patch(char *name)
 
     WRITE_WORD_ROM(&RAM[0x3c36], 0x4e71);
     WRITE_WORD_ROM(&RAM[0x3c38], 0x4e71);
-  }
+	}
 
+	// if(!strcmp(name, "kof97t")) {
+    // /* patch out protection checks */
+    // uint8_t *RAM = memory.rom.cpu_m68k.p;
+	/* 以下地址相对于FBNEO的地址，-1得来。 */
+    // WRITE_BYTE_ROM(&RAM[0x19f], 0xe7);
+    // WRITE_BYTE_ROM(&RAM[0x1a0], 0x48);
+    // WRITE_BYTE_ROM(&RAM[0x1a1], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1a2], 0x80);
+    // WRITE_BYTE_ROM(&RAM[0x1a3], 0x39);
+    // WRITE_BYTE_ROM(&RAM[0x1a4], 0x20);
+    // WRITE_BYTE_ROM(&RAM[0x1a5], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x1a6], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1a7], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1a8], 0x85);
+    // WRITE_BYTE_ROM(&RAM[0x1a9], 0xbc);
+    // WRITE_BYTE_ROM(&RAM[0x1aa], 0xb0);
+    // WRITE_BYTE_ROM(&RAM[0x1ab], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1ac], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1ad], 0x18);
+    // WRITE_BYTE_ROM(&RAM[0x1ae], 0xea);
+    // WRITE_BYTE_ROM(&RAM[0x1af], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1b0], 0x67);
+    // WRITE_BYTE_ROM(&RAM[0x1b1], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x1b2], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1b3], 0xbc);
+    // WRITE_BYTE_ROM(&RAM[0x1b4], 0xb0);
+    // WRITE_BYTE_ROM(&RAM[0x1b5], 0x01);
+    // WRITE_BYTE_ROM(&RAM[0x1b6], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1b7], 0xd0);
+    // WRITE_BYTE_ROM(&RAM[0x1b8], 0xf9);
+    // WRITE_BYTE_ROM(&RAM[0x1b9], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1ba], 0x67);
+    // WRITE_BYTE_ROM(&RAM[0x1bb], 0x14);
+    // WRITE_BYTE_ROM(&RAM[0x1bc], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1bd], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1be], 0x60);
+    // WRITE_BYTE_ROM(&RAM[0x1bf], 0x20);
+    // WRITE_BYTE_ROM(&RAM[0x1c0], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1c1], 0x3c);
+    // WRITE_BYTE_ROM(&RAM[0x1c2], 0x30);
+    // WRITE_BYTE_ROM(&RAM[0x1c3], 0x8a);
+    // WRITE_BYTE_ROM(&RAM[0x1c4], 0x59);
+    // WRITE_BYTE_ROM(&RAM[0x1c5], 0xc0);
+    // WRITE_BYTE_ROM(&RAM[0x1c6], 0x33);
+    // WRITE_BYTE_ROM(&RAM[0x1c7], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x1c8], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1c9], 0x16);
+    // WRITE_BYTE_ROM(&RAM[0x1ca], 0xa8);
+    // WRITE_BYTE_ROM(&RAM[0x1cb], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1cc], 0x60);
+    // WRITE_BYTE_ROM(&RAM[0x1cd], 0x12);
+    // WRITE_BYTE_ROM(&RAM[0x1ce], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1cf], 0x3c);
+    // WRITE_BYTE_ROM(&RAM[0x1d0], 0x30);
+    // WRITE_BYTE_ROM(&RAM[0x1d1], 0x8a);
+    // WRITE_BYTE_ROM(&RAM[0x1d2], 0x89);
+    // WRITE_BYTE_ROM(&RAM[0x1d3], 0xc0);
+    // WRITE_BYTE_ROM(&RAM[0x1d4], 0x33);
+    // WRITE_BYTE_ROM(&RAM[0x1d5], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x1d6], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1d7], 0x38);
+    // WRITE_BYTE_ROM(&RAM[0x1d8], 0x82);
+    // WRITE_BYTE_ROM(&RAM[0x1d9], 0xc0);
+    // WRITE_BYTE_ROM(&RAM[0x1da], 0x33);
+    // WRITE_BYTE_ROM(&RAM[0x1db], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x1dc], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1dd], 0x38);
+    // WRITE_BYTE_ROM(&RAM[0x1de], 0x84);
+    // WRITE_BYTE_ROM(&RAM[0x1df], 0xdf);
+    // WRITE_BYTE_ROM(&RAM[0x1e0], 0x4c);
+    // WRITE_BYTE_ROM(&RAM[0x1e1], 0x01);
+    // WRITE_BYTE_ROM(&RAM[0x1e2], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1e3], 0xc0);
+    // WRITE_BYTE_ROM(&RAM[0x1e4], 0x13);
+    // WRITE_BYTE_ROM(&RAM[0x1e5], 0x30);
+    // WRITE_BYTE_ROM(&RAM[0x1e6], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1e7], 0x01);
+    // WRITE_BYTE_ROM(&RAM[0x1e8], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x1e9], 0x75);
+    // WRITE_BYTE_ROM(&RAM[0x1ea], 0x4e);
+    // WRITE_BYTE_ROM(&RAM[0x9ebd], 0xb9);
+    // WRITE_BYTE_ROM(&RAM[0x9ebe], 0x4e);
+    // WRITE_BYTE_ROM(&RAM[0x9ebf], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x9ec1], 0xa0);
+    // WRITE_BYTE_ROM(&RAM[0x9ec2], 0x01);
+    // WRITE_BYTE_ROM(&RAM[0x22457], 0xed);
+    // WRITE_BYTE_ROM(&RAM[0x22459], 0x3f);
+    // WRITE_BYTE_ROM(&RAM[0x2245a], 0x28);
+    // WRITE_BYTE_ROM(&RAM[0x22463], 0xed);
+    // WRITE_BYTE_ROM(&RAM[0x22465], 0x50);
+    // WRITE_BYTE_ROM(&RAM[0x22466], 0x28);
+    // WRITE_BYTE_ROM(&RAM[0x2246b], 0x48);
+    // WRITE_BYTE_ROM(&RAM[0x2246c], 0x50);
+    // WRITE_BYTE_ROM(&RAM[0x2246d], 0x4a);
+    // WRITE_BYTE_ROM(&RAM[0x2246e], 0x50);
+    // WRITE_BYTE_ROM(&RAM[0x22479], 0xe0);
+    // WRITE_BYTE_ROM(&RAM[0x2247a], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2247d], 0x04);
+    // WRITE_BYTE_ROM(&RAM[0x22481], 0x05);
+    // WRITE_BYTE_ROM(&RAM[0x22485], 0x06);
+    // WRITE_BYTE_ROM(&RAM[0x224b5], 0xc6);
+    // WRITE_BYTE_ROM(&RAM[0x224b7], 0x2d);
+    // WRITE_BYTE_ROM(&RAM[0x224b8], 0x09);
+    // WRITE_BYTE_ROM(&RAM[0x224b9], 0xf2);
+    // WRITE_BYTE_ROM(&RAM[0x224ba], 0x27);
+    // WRITE_BYTE_ROM(&RAM[0x224c7], 0x98);
+    // WRITE_BYTE_ROM(&RAM[0x224c8], 0x6d);
+    // WRITE_BYTE_ROM(&RAM[0x224d1], 0x99);
+    // WRITE_BYTE_ROM(&RAM[0x224d2], 0x6d);
+    // WRITE_BYTE_ROM(&RAM[0x224fb], 0xc2);
+    // WRITE_BYTE_ROM(&RAM[0x224fd], 0xc2);
+    // WRITE_BYTE_ROM(&RAM[0x22501], 0xc6);
+    // WRITE_BYTE_ROM(&RAM[0x22503], 0xc6);
+    // WRITE_BYTE_ROM(&RAM[0x22507], 0xe0);
+    // WRITE_BYTE_ROM(&RAM[0x22509], 0xe0);
+    // WRITE_BYTE_ROM(&RAM[0x2250d], 0xe4);
+    // WRITE_BYTE_ROM(&RAM[0x2250f], 0xe4);
+    // WRITE_BYTE_ROM(&RAM[0x22513], 0xe8);
+    // WRITE_BYTE_ROM(&RAM[0x22515], 0xe8);
+    // WRITE_BYTE_ROM(&RAM[0x22529], 0xb8);
+    // WRITE_BYTE_ROM(&RAM[0x2252a], 0x4e);
+    // WRITE_BYTE_ROM(&RAM[0x2252b], 0x26);
+    // WRITE_BYTE_ROM(&RAM[0x2252c], 0x30);
+    // WRITE_BYTE_ROM(&RAM[0x2252d], 0x40);
+    // WRITE_BYTE_ROM(&RAM[0x2252e], 0x02);
+    // WRITE_BYTE_ROM(&RAM[0x2252f], 0x1f);
+    // WRITE_BYTE_ROM(&RAM[0x22530], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22531], 0x40);
+    // WRITE_BYTE_ROM(&RAM[0x22532], 0x39);
+    // WRITE_BYTE_ROM(&RAM[0x22533], 0xd6);
+    // WRITE_BYTE_ROM(&RAM[0x22534], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22535], 0xbc);
+    // WRITE_BYTE_ROM(&RAM[0x22536], 0x28);
+    // WRITE_BYTE_ROM(&RAM[0x22537], 0x02);
+    // WRITE_BYTE_ROM(&RAM[0x22538], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22539], 0x3c);
+    // WRITE_BYTE_ROM(&RAM[0x2253a], 0x25);
+    // WRITE_BYTE_ROM(&RAM[0x2253b], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2253c], 0x70);
+    // WRITE_BYTE_ROM(&RAM[0x2253d], 0x6c);
+    // WRITE_BYTE_ROM(&RAM[0x2253e], 0x26);
+    // WRITE_BYTE_ROM(&RAM[0x2253f], 0x84);
+    // WRITE_BYTE_ROM(&RAM[0x22540], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22541], 0x6c);
+    // WRITE_BYTE_ROM(&RAM[0x22542], 0x20);
+    // WRITE_BYTE_ROM(&RAM[0x22543], 0xc6);
+    // WRITE_BYTE_ROM(&RAM[0x22544], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22545], 0x28);
+    // WRITE_BYTE_ROM(&RAM[0x22546], 0x1c);
+    // WRITE_BYTE_ROM(&RAM[0x22547], 0x03);
+    // WRITE_BYTE_ROM(&RAM[0x22548], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22549], 0x2c);
+    // WRITE_BYTE_ROM(&RAM[0x2254a], 0x4a);
+    // WRITE_BYTE_ROM(&RAM[0x2254b], 0xf8);
+    // WRITE_BYTE_ROM(&RAM[0x2254c], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2254d], 0x74);
+    // WRITE_BYTE_ROM(&RAM[0x2254e], 0x66);
+    // WRITE_BYTE_ROM(&RAM[0x22551], 0xfa);
+    // WRITE_BYTE_ROM(&RAM[0x22553], 0x14);
+    // WRITE_BYTE_ROM(&RAM[0x22555], 0x40);
+    // WRITE_BYTE_ROM(&RAM[0x22556], 0x11);
+    // WRITE_BYTE_ROM(&RAM[0x22557], 0x0a);
+    // WRITE_BYTE_ROM(&RAM[0x22558], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22559], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2255a], 0x52);
+    // WRITE_BYTE_ROM(&RAM[0x2255b], 0x40);
+    // WRITE_BYTE_ROM(&RAM[0x2255c], 0x11);
+    // WRITE_BYTE_ROM(&RAM[0x2255d], 0x0b);
+    // WRITE_BYTE_ROM(&RAM[0x2255e], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2255f], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22560], 0x52);
+    // WRITE_BYTE_ROM(&RAM[0x22561], 0x40);
+    // WRITE_BYTE_ROM(&RAM[0x22562], 0x11);
+    // WRITE_BYTE_ROM(&RAM[0x22563], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x22564], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22565], 0x2c);
+    // WRITE_BYTE_ROM(&RAM[0x22566], 0x52);
+    // WRITE_BYTE_ROM(&RAM[0x22567], 0xfa);
+    // WRITE_BYTE_ROM(&RAM[0x22568], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22569], 0x28);
+    // WRITE_BYTE_ROM(&RAM[0x2256a], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x2256b], 0x01);
+    // WRITE_BYTE_ROM(&RAM[0x2256c], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2256d], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2256e], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x2256f], 0x0b);
+    // WRITE_BYTE_ROM(&RAM[0x22570], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22571], 0x20);
+    // WRITE_BYTE_ROM(&RAM[0x22572], 0x67);
+    // WRITE_BYTE_ROM(&RAM[0x22573], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22574], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x22575], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x22576], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22577], 0x1a);
+    // WRITE_BYTE_ROM(&RAM[0x22578], 0x67);
+    // WRITE_BYTE_ROM(&RAM[0x22579], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2257a], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x2257b], 0x0e);
+    // WRITE_BYTE_ROM(&RAM[0x2257c], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2257d], 0x14);
+    // WRITE_BYTE_ROM(&RAM[0x2257e], 0x67);
+    // WRITE_BYTE_ROM(&RAM[0x2257f], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22580], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x22581], 0x0d);
+    // WRITE_BYTE_ROM(&RAM[0x22582], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22583], 0x14);
+    // WRITE_BYTE_ROM(&RAM[0x22584], 0x66);
+    // WRITE_BYTE_ROM(&RAM[0x22585], 0x28);
+    // WRITE_BYTE_ROM(&RAM[0x22586], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x22587], 0x0a);
+    // WRITE_BYTE_ROM(&RAM[0x22588], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22589], 0x68);
+    // WRITE_BYTE_ROM(&RAM[0x2258a], 0x11);
+    // WRITE_BYTE_ROM(&RAM[0x2258b], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x2258d], 0x0a);
+    // WRITE_BYTE_ROM(&RAM[0x2258e], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2258f], 0x40);
+    // WRITE_BYTE_ROM(&RAM[0x22590], 0x11);
+    // WRITE_BYTE_ROM(&RAM[0x22591], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x22592], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22593], 0x03);
+    // WRITE_BYTE_ROM(&RAM[0x22594], 0x7c);
+    // WRITE_BYTE_ROM(&RAM[0x22595], 0x6c);
+    // WRITE_BYTE_ROM(&RAM[0x22596], 0x53);
+    // WRITE_BYTE_ROM(&RAM[0x22597], 0xd6);
+    // WRITE_BYTE_ROM(&RAM[0x22598], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22599], 0x6c);
+    // WRITE_BYTE_ROM(&RAM[0x2259a], 0x20);
+    // WRITE_BYTE_ROM(&RAM[0x2259b], 0xc2);
+    // WRITE_BYTE_ROM(&RAM[0x2259c], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2259d], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2259e], 0x70);
+    // WRITE_BYTE_ROM(&RAM[0x2259f], 0x80);
+    // WRITE_BYTE_ROM(&RAM[0x225a0], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x225bb], 0x70);
+    // WRITE_BYTE_ROM(&RAM[0x225bf], 0xc2);
+    // WRITE_BYTE_ROM(&RAM[0x225c9], 0x06);
+    // WRITE_BYTE_ROM(&RAM[0x225cb], 0x02);
+    // WRITE_BYTE_ROM(&RAM[0x225d1], 0x70);
+    // WRITE_BYTE_ROM(&RAM[0x225d5], 0xc2);
+    // WRITE_BYTE_ROM(&RAM[0x225db], 0xc2);
+    // WRITE_BYTE_ROM(&RAM[0x225e3], 0x40);
+    // WRITE_BYTE_ROM(&RAM[0x225e4], 0x02);
+    // WRITE_BYTE_ROM(&RAM[0x225e5], 0x70);
+    // WRITE_BYTE_ROM(&RAM[0x225e6], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x225e8], 0x4a);
+    // WRITE_BYTE_ROM(&RAM[0x225e9], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x225ea], 0x67);
+    // WRITE_BYTE_ROM(&RAM[0x225eb], 0x4a);
+    // WRITE_BYTE_ROM(&RAM[0x225ec], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x225ed], 0x04);
+    // WRITE_BYTE_ROM(&RAM[0x225ef], 0x02);
+    // WRITE_BYTE_ROM(&RAM[0x225f9], 0xf4);
+    // WRITE_BYTE_ROM(&RAM[0x225fd], 0x0a);
+    // WRITE_BYTE_ROM(&RAM[0x2261f], 0xf4);
+    // WRITE_BYTE_ROM(&RAM[0x22625], 0xe7);
+    // WRITE_BYTE_ROM(&RAM[0x22626], 0x48);
+    // WRITE_BYTE_ROM(&RAM[0x22627], 0x80);
+    // WRITE_BYTE_ROM(&RAM[0x22628], 0xc0);
+    // WRITE_BYTE_ROM(&RAM[0x22629], 0x3c);
+    // WRITE_BYTE_ROM(&RAM[0x2262a], 0x30);
+    // WRITE_BYTE_ROM(&RAM[0x2262b], 0x1d);
+    // WRITE_BYTE_ROM(&RAM[0x2262c], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x2262d], 0xb8);
+    // WRITE_BYTE_ROM(&RAM[0x2262e], 0x4e);
+    // WRITE_BYTE_ROM(&RAM[0x22630], 0x77);
+    // WRITE_BYTE_ROM(&RAM[0x22631], 0xdf);
+    // WRITE_BYTE_ROM(&RAM[0x22632], 0x4c);
+    // WRITE_BYTE_ROM(&RAM[0x22633], 0x03);
+    // WRITE_BYTE_ROM(&RAM[0x22634], 0x01);
+    // WRITE_BYTE_ROM(&RAM[0x22635], 0x46);
+    // WRITE_BYTE_ROM(&RAM[0x22636], 0x11);
+    // WRITE_BYTE_ROM(&RAM[0x22637], 0x03);
+    // WRITE_BYTE_ROM(&RAM[0x22639], 0x06);
+    // WRITE_BYTE_ROM(&RAM[0x2263a], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x2263b], 0x03);
+    // WRITE_BYTE_ROM(&RAM[0x2263c], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x22647], 0x4a);
+    // WRITE_BYTE_ROM(&RAM[0x22663], 0xfa);
+    // WRITE_BYTE_ROM(&RAM[0x22664], 0x45);
+    // WRITE_BYTE_ROM(&RAM[0x22665], 0xe6);
+    // WRITE_BYTE_ROM(&RAM[0x22666], 0xff);
+    // WRITE_BYTE_ROM(&RAM[0x2266d], 0xfa);
+    // WRITE_BYTE_ROM(&RAM[0x2266e], 0x45);
+    // WRITE_BYTE_ROM(&RAM[0x2266f], 0xe8);
+    // WRITE_BYTE_ROM(&RAM[0x22670], 0xff);
+    // WRITE_BYTE_ROM(&RAM[0x22671], 0x4a);
+    // WRITE_BYTE_ROM(&RAM[0x22677], 0xc6);
+    // WRITE_BYTE_ROM(&RAM[0x226fd], 0x0a);
+    // WRITE_BYTE_ROM(&RAM[0x226ff], 0x98);
+    // WRITE_BYTE_ROM(&RAM[0x22700], 0xc6);
+    // WRITE_BYTE_ROM(&RAM[0x227b5], 0x83);
+    // WRITE_BYTE_ROM(&RAM[0x227b6], 0xec);
+    // WRITE_BYTE_ROM(&RAM[0x227b7], 0x24);
+    // WRITE_BYTE_ROM(&RAM[0x227b8], 0x83);
+    // WRITE_BYTE_ROM(&RAM[0x227b9], 0x6c);
+    // WRITE_BYTE_ROM(&RAM[0x227ba], 0x24);
+    // WRITE_BYTE_ROM(&RAM[0x227bb], 0x38);
+    // WRITE_BYTE_ROM(&RAM[0x227bc], 0x01);
+    // WRITE_BYTE_ROM(&RAM[0x227bd], 0x8b);
+    // WRITE_BYTE_ROM(&RAM[0x227be], 0x4c);
+    // WRITE_BYTE_ROM(&RAM[0x227bf], 0x24);
+    // WRITE_BYTE_ROM(&RAM[0x227c0], 0x28);
+    // WRITE_BYTE_ROM(&RAM[0x227c1], 0x8b);
+    // WRITE_BYTE_ROM(&RAM[0x227c2], 0x81);
+    // WRITE_BYTE_ROM(&RAM[0x227c3], 0xa4);
+    // WRITE_BYTE_ROM(&RAM[0x227c4], 0x01);
+    // WRITE_BYTE_ROM(&RAM[0x227c5], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x227c6], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x227c7], 0x8b);
+    // WRITE_BYTE_ROM(&RAM[0x227c8], 0x91);
+    // WRITE_BYTE_ROM(&RAM[0x227c9], 0x20);
+    // WRITE_BYTE_ROM(&RAM[0x227ca], 0x01);
+    // WRITE_BYTE_ROM(&RAM[0x227cb], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x227cc], 0x00);
+    // WRITE_BYTE_ROM(&RAM[0x227cd], 0x55);
+    // WRITE_BYTE_ROM(&RAM[0x227ce], 0x8b);
+    // WRITE_BYTE_ROM(&RAM[0x227cf], 0x69);
+    // WRITE_BYTE_ROM(&RAM[0x227d0], 0x5c);
+    // WRITE_BYTE_ROM(&RAM[0x227d1], 0x8b);
+    // WRITE_BYTE_ROM(&RAM[0x227d2], 0x48);
+    // WRITE_BYTE_ROM(&RAM[0x227d3], 0x08);
+    // WRITE_BYTE_ROM(&RAM[0x227d4], 0x89);
+    // WRITE_BYTE_ROM(&RAM[0x227d5], 0x4c);
+    // WRITE_BYTE_ROM(&RAM[0x227d6], 0x24);
+    // WRITE_BYTE_ROM(&RAM[0x227d7], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x227d8], 0x8b);
+    // WRITE_BYTE_ROM(&RAM[0x227d9], 0x48);
+    // WRITE_BYTE_ROM(&RAM[0x227da], 0x0c);
+    // WRITE_BYTE_ROM(&RAM[0x227db], 0x89);
+    // WRITE_BYTE_ROM(&RAM[0x227dc], 0x4c);
+    // WRITE_BYTE_ROM(&RAM[0x227dd], 0x24);
+    // WRITE_BYTE_ROM(&RAM[0x227de], 0x1c);
+    // WRITE_BYTE_ROM(&RAM[0x227df], 0x8b);
+    // WRITE_BYTE_ROM(&RAM[0x227e0], 0x48);
+    // WRITE_BYTE_ROM(&RAM[0x227e1], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x227e2], 0x8b);
+    // WRITE_BYTE_ROM(&RAM[0x227e3], 0x40);
+    // WRITE_BYTE_ROM(&RAM[0x227e4], 0x14);
+    // WRITE_BYTE_ROM(&RAM[0x227e5], 0x89);
+    // WRITE_BYTE_ROM(&RAM[0x227e6], 0x6c);
+    // WRITE_BYTE_ROM(&RAM[0x227e7], 0x24);
+    // WRITE_BYTE_ROM(&RAM[0x227e8], 0x20);
+    // WRITE_BYTE_ROM(&RAM[0x227e9], 0x89);
+    // WRITE_BYTE_ROM(&RAM[0x227ea], 0x54);
+    // WRITE_BYTE_ROM(&RAM[0x227eb], 0x24);
+    // WRITE_BYTE_ROM(&RAM[0x227ec], 0x18);
+    // WRITE_BYTE_ROM(&RAM[0x227ed], 0x89);
+    // WRITE_BYTE_ROM(&RAM[0x227ee], 0x4c);
+    // WRITE_BYTE_ROM(&RAM[0x227ef], 0x24);
+    // WRITE_BYTE_ROM(&RAM[0x227f0], 0x14);
+    // WRITE_BYTE_ROM(&RAM[0x227f1], 0x89);
+    // WRITE_BYTE_ROM(&RAM[0x227f2], 0x44);
+    // WRITE_BYTE_ROM(&RAM[0x227f3], 0x24);
+    // WRITE_BYTE_ROM(&RAM[0x227f4], 0x10);
+    // WRITE_BYTE_ROM(&RAM[0x227f5], 0xcc);
+    // WRITE_BYTE_ROM(&RAM[0x227f6], 0xcc);
+    // WRITE_BYTE_ROM(&RAM[0x227f7], 0xcc);
+    // WRITE_BYTE_ROM(&RAM[0x227f8], 0xcc);
+    // WRITE_BYTE_ROM(&RAM[0x227f9], 0xcc);
+    // WRITE_BYTE_ROM(&RAM[0x227fa], 0xcc);
+    // WRITE_BYTE_ROM(&RAM[0x227fb], 0xcc);
+    // WRITE_BYTE_ROM(&RAM[0x227fc], 0xcc);
+    // WRITE_BYTE_ROM(&RAM[0x227fd], 0xac);
+    // WRITE_BYTE_ROM(&RAM[0x227fe], 0x11);
+  // }
 }
 
 void neogeo_reset(void)
