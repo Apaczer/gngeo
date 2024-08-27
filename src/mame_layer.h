@@ -146,8 +146,8 @@
 
 //#define malloc_or_die(b) malloc(b)
 #define alloc_array_or_die(type,size) ((type*)malloc_or_die(sizeof(type)*size))
-UINT32 memory_region_length( GAME_ROMS *r, char *region );
-UINT8 *memory_region( GAME_ROMS *r, char *region );
+UINT32 memory_region_length(GAME_ROMS *r, char *region);
+UINT8 *memory_region(GAME_ROMS *r, char *region);
 void *malloc_or_die(UINT32 b);
 
 #endif
