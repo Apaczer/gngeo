@@ -42,11 +42,8 @@ typedef enum COUNTRY {
 
 struct {
   char *game;
-  uint16_t sample_rate;
   uint8_t sound;
-
   uint8_t do_message;
-  //uint8_t nb_joy;
   uint8_t rom_type;
   uint8_t special_bios;
   uint8_t extra_xor;
@@ -56,13 +53,10 @@ struct {
   uint8_t show_fps;
   char message[128];
 
-  int *p1_key;
-  int *p2_key;
-
-  //SDL_Joystick **joy;
-  //int *p1_joy;
-  //int *p2_joy;
-
+  uint16_t a_btn;
+  uint16_t b_btn;
+  uint16_t x_btn;
+  uint16_t y_btn;
   uint16_t l_btn;
   uint16_t r_btn;
 } conf;

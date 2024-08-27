@@ -37,40 +37,41 @@
 #include "memory.h"
 #include "gnutil.h"
 #include "messages.h"
-#include "transpack.h"
 #include "frame_skip.h"
 #include "ym2610_interf.h"
 
-int main(int argc, char** argv)
+extern ROM_DEF drv[];
+
+int main(int argc, char **argv)
 {
-  char *rom_name=NULL;
-  char *ext_name=NULL;
+  char *rom_name = NULL;
+  char *ext_name = NULL;
 
   cf_init();
   cf_init_cmd_line();
   cf_open_file(NULL);
   rom_name = cf_parse_cmd_line(argc, argv);
-  if(rom_name){
+  if(rom_name) {
     ext_name = strrchr(rom_name, '.');
     printf("rom name: %s\n", rom_name);
-    if(strcasecmp(ext_name, ".gno")){
+    if(strcasecmp(ext_name, ".gno")) {
       rom_name = remove_path_and_extension(rom_name, '.', '/');
     }
   }
-  
+
   memory.intern_p1 = 0xff;
   memory.intern_p2 = 0xff;
   memory.intern_coin = 0x07;
   memory.intern_start = 0x8f;
-  
+
   sdl_init();
-  if(gn_init_skin() != GN_TRUE){
+  if(gn_init_skin() != GN_TRUE) {
     printf("failed to load skin\n");
     exit(1);
   }
   reset_frame_skip();
 
-  if(!rom_name){
+  if(!rom_name) {
     run_menu();
     printf("GAME %s\n", conf.game);
     if(conf.game == NULL) {
@@ -78,9 +79,9 @@ int main(int argc, char** argv)
     }
   }
   else {
-    uint32_t diff=0;
-    struct timeval tv1={0}, tv2={0};
-    const uint32_t TICKS_PER_SEC=1000000;
+    uint32_t diff = 0;
+    struct timeval tv1 = {0}, tv2 = {0};
+    const uint32_t TICKS_PER_SEC = 1000000;
 
     gettimeofday(&tv1, 0);
     if(init_game(rom_name) != GN_TRUE) {
@@ -91,7 +92,15 @@ int main(int argc, char** argv)
     diff = ((tv2.tv_sec - tv1.tv_sec) * TICKS_PER_SEC) + (tv2.tv_usec - tv1.tv_usec);
     printf("take about %ld us\n", diff);
   }
-  //dr_save_gno(&memory.rom, "dump.gno");
+
+  if(CF_BOOL(cf_get_item_by_name("dump"))) {
+    char buf[32]={0};
+
+    sprintf(buf, "%s.gno", rom_name);
+    dr_save_gno(&memory.rom, buf);
+    close_game();
+    return 0;
+  }
   main_loop();
   close_game();
   return 0;

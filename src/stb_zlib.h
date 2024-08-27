@@ -18,34 +18,32 @@ typedef unsigned int   uint;
 
 // zlib-style huffman encoding
 // (jpegs packs from left, zlib from right, so can't share code)
-typedef struct
-{
-   uint16 fast[1 << ZFAST_BITS];
-   uint16 firstcode[16];
-   int maxcode[17];
-   uint16 firstsymbol[16];
-   uint8  size[288];
-   uint16 value[288]; 
+typedef struct {
+  uint16 fast[1 << ZFAST_BITS];
+  uint16 firstcode[16];
+  int maxcode[17];
+  uint16 firstsymbol[16];
+  uint8  size[288];
+  uint16 value[288];
 } zhuffman;
 
-typedef struct
-{
-	uint8 *zbuffer, *zbuffer_end;
-	FILE *zf;
-	int totread,totsize;
-	int num_bits;
-	uint32 code_buffer;
-	
-	char *zout;
-	char *zout_start;
-	char *zout_end;
-	int   z_expandable;
-	
-	uint8 *cbuf;
-	uint32 cb_pos;
-	int final,left,type,dist;
+typedef struct {
+  uint8 *zbuffer, *zbuffer_end;
+  FILE *zf;
+  int totread, totsize;
+  int num_bits;
+  uint32 code_buffer;
 
-	zhuffman z_length, z_distance;
+  char *zout;
+  char *zout_start;
+  char *zout_end;
+  int   z_expandable;
+
+  uint8 *cbuf;
+  uint32 cb_pos;
+  int final, left, type, dist;
+
+  zhuffman z_length, z_distance;
 } zbuf;
 
 
@@ -53,8 +51,8 @@ typedef struct
 
 char *stbi_zlib_decode_malloc(const char *buffer, int len, int *outlen);
 
-zbuf *stbi_zlib_create_zbuf(const char *ibuffer,FILE *f, int ilen);
-int   stbi_zlib_decode_noheader_stream(zbuf *a,char *obuffer, int olen);
+zbuf *stbi_zlib_create_zbuf(const char *ibuffer, FILE *f, int ilen);
+int   stbi_zlib_decode_noheader_stream(zbuf *a, char *obuffer, int olen);
 
 
 

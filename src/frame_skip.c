@@ -62,13 +62,13 @@ void reset_frame_skip(void)
 
 static int __attribute__((noinline)) get_cpu_ticks(void)
 {
-  static int fd=0;
-  static unsigned long last_utime=0;
+  static int fd = 0;
+  static unsigned long last_utime = 0;
 
-  char buf[128]={0};
-  unsigned long utime=0, ret=0;
+  char buf[128] = {0};
+  unsigned long utime = 0, ret = 0;
 
-  if(fd == 0){
+  if(fd == 0) {
     fd = open("/proc/self/stat", O_RDONLY);
   }
   lseek(fd, 0, SEEK_SET);
@@ -78,7 +78,7 @@ static int __attribute__((noinline)) get_cpu_ticks(void)
 
   sscanf(buf, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu", &utime);
   ret = utime - last_utime;
-  if (ret > 200){
+  if(ret > 200) {
     ret = 0;
   }
   last_utime = utime;
@@ -109,8 +109,8 @@ int frame_skip(void)
 
   target += F;
   if(f2skip > 0) {
-    f2skip-= 1;
-    skpFrm+= 1;
+    f2skip -= 1;
+    skpFrm += 1;
     return 1;;
   }
   else {

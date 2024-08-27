@@ -81,9 +81,9 @@ static unsigned int  sin_tab[SIN_LEN];
 /* 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)*/
 #define SC(db) (uint32_t) ( db * (4.0/ENV_STEP) )
 static const uint32_t  sl_table[16] = { SC(0), SC(1), SC(2), SC(3),
-                                             SC(4), SC(5), SC(6), SC(7), SC(8), SC(9), SC(10), SC(11),
-                                             SC(12), SC(13), SC(14), SC(31)
-                                           };
+                                        SC(4), SC(5), SC(6), SC(7), SC(8), SC(9), SC(10), SC(11),
+                                        SC(12), SC(13), SC(14), SC(31)
+                                      };
 #undef SC
 
 #define RATE_STEPS (8)
@@ -201,14 +201,14 @@ static const uint8_t  dt_tab[4 * 32] = {
 /* OPN key frequency number -> key code follow table */
 /* fnum higher 4bit -> keycode lower 2bit */
 static const uint8_t  opn_fktable[16] = { 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3,
-                                               3, 3, 3, 3, 3
-                                             };
+                                          3, 3, 3, 3, 3
+                                        };
 
 /* 8 LFO speed parameters */
 /* each value represents number of samples that one LFO level will last for */
 static const uint32_t  lfo_samples_per_step[8] = { 108, 77, 71, 67, 62, 44,
-                                                        8, 5
-                                                      };
+                                                   8, 5
+                                                 };
 
 /*There are 4 different LFO AM depths available, they are:
  0 dB, 1.4 dB, 5.9 dB, 11.8 dB
@@ -1277,12 +1277,6 @@ static void init_timetables(FM_ST *ST, const uint8_t *dttable)
   int i, d;
   double rate;
 
-#if 0
-  logerror("FM.C: samplerate=%8i chip clock=%8i  freqbase=%f  \n",
-           ST->rate, ST->clock, ST->freqbase);
-#endif
-
-  /* DeTune table */
   for(d = 0; d <= 3; d++) {
     for(i = 0; i <= 31; i++) {
       rate = ((double) dttable[d * 32 + i]) * SIN_LEN * ST->freqbase
@@ -1477,7 +1471,7 @@ static void OPNSetPres(FM_OPN *OPN, int pres, int TimerPres, int SSGpres)
     /* freq table for octave 7 */
     /* OPN phase increment counter = 20bit */
     OPN->fn_table[i] = (uint32_t)((double) i * 32 * OPN->ST.freqbase
-                             * (1 << (FREQ_SH - 10))); /* -10 because chip works with 10.10 fixed point, while we use 16.16 */
+                                  * (1 << (FREQ_SH - 10))); /* -10 because chip works with 10.10 fixed point, while we use 16.16 */
 #if 0
     logerror("FM.C: fn_table[%4i] = %08x (dec=%8i)\n",
              i, OPN->fn_table[i] >> 6, OPN->fn_table[i] >> 6);
@@ -2174,7 +2168,7 @@ static void OPNB_ADPCMA_write(int r, int v)
         if((v >> c) & 1) {
           /**** start adpcm ****/
           adpcma[c].step = (uint32_t)((float)(1 << ADPCM_SHIFT)
-                                 * ((float) YM2610.OPN.ST.freqbase) / 3.0);
+                                      * ((float) YM2610.OPN.ST.freqbase) / 3.0);
           adpcma[c].now_addr = adpcma[c].start << 1;
           adpcma[c].now_step = 0;
           adpcma[c].adpcma_acc = 0;
@@ -2293,13 +2287,13 @@ static uint32_t pcmsizeB;
 /* Forecast to next Forecast (rate = *8) */
 /* 1/8 , 3/8 , 5/8 , 7/8 , 9/8 , 11/8 , 13/8 , 15/8 */
 static const int32_t adpcmb_decode_table1[16] = { 1, 3, 5, 7, 9, 11, 13, 15, -1, -3,
-                                              -5, -7, -9, -11, -13, -15,
-                                              };
+                                                  -5, -7, -9, -11, -13, -15,
+                                                  };
 /* delta to next delta (rate= *64) */
 /* 0.9 , 0.9 , 0.9 , 0.9 , 1.2 , 1.6 , 2.0 , 2.4 */
 static const int32_t adpcmb_decode_table2[16] = { 57, 57, 57, 57, 77, 102, 128, 153,
-                                              57, 57, 57, 57, 77, 102, 128, 153
-                                            };
+                                                  57, 57, 57, 57, 77, 102, 128, 153
+                                                };
 
 /* 0-DRAM x1, 1-ROM, 2-DRAM x8, 3-ROM (3 is bad setting - not allowed by the manual) */
 static uint8_t dram_rightshift[4] = { 3, 0, 0, 0 };
@@ -2454,7 +2448,7 @@ static void OPNB_ADPCMB_write(ADPCMB *adpcmb, int r, int v)
     adpcmb->delta = (YM2610.regs[0x1a] << 8) | YM2610.regs[0x19];
     adpcmb->step =
       (uint32_t)((double)(adpcmb->delta /* * (1 << (ADPCMb_SHIFT - 16)) */)
-            * (adpcmb->freqbase));
+                 * (adpcmb->freqbase));
     /*logerror("DELTAT deltan:09=%2x 0a=%2x\n", YM2610.regs[0x19], YM2610.regs[0x1a]);*/
     break;
 
@@ -2628,7 +2622,7 @@ void YM2610ChangeSamplerate(int rate)
   OPNSetPres(&YM2610.OPN, 6 * 24, 6 * 24, 4 * 2); /* OPN 1/6, SSG 1/4 */
   for(i = 0; i < 6; i++) {
     YM2610.adpcma[i].step = (uint32_t)((float)(1 << ADPCM_SHIFT)
-                                  * ((float) YM2610.OPN.ST.freqbase) / 3.0);
+                                       * ((float) YM2610.OPN.ST.freqbase) / 3.0);
   }
   YM2610.adpcmb.freqbase = YM2610.OPN.ST.freqbase;
 }
@@ -2668,7 +2662,7 @@ void YM2610Reset(void)
   /**** ADPCM work initial ****/
   for(i = 0; i < 6; i++) {
     YM2610.adpcma[i].step = (uint32_t)((float)(1 << ADPCM_SHIFT)
-                                  * ((float) YM2610.OPN.ST.freqbase) / 3.0);
+                                       * ((float) YM2610.OPN.ST.freqbase) / 3.0);
     YM2610.adpcma[i].now_addr = 0;
     YM2610.adpcma[i].now_step = 0;
     YM2610.adpcma[i].start = 0;
@@ -3014,7 +3008,7 @@ void YM2610Update(int *p)
   int16_t *buffer = (int16_t *) p;
   int16_t lt, rt;
 
-  switch(/*option_samplerate*/0) {
+  switch(0) {
   case 0:
     YM2610Update_stream(SOUND_SAMPLES >> 2);
     for(i = 0; i < SOUND_SAMPLES >> 2; i++) {

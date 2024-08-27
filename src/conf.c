@@ -37,44 +37,21 @@
 static struct {
   CONF_ITEM **conf;
   int size, nb_item;
-} cf_hash[128]={0};
+} cf_hash[128] = {0};
 
 
 void cf_cache_conf(void)
 {
-  char *country;
-  char *system;
-  
   conf.show_fps = CF_BOOL(cf_get_item_by_name("showfps"));
   conf.sound = CF_BOOL(cf_get_item_by_name("sound"));
-  conf.sample_rate = CF_VAL(cf_get_item_by_name("samplerate"));
+  conf.a_btn = CF_VAL(cf_get_item_by_name("a_btn"));
+  conf.b_btn = CF_VAL(cf_get_item_by_name("b_btn"));
+  conf.x_btn = CF_VAL(cf_get_item_by_name("x_btn"));
+  conf.y_btn = CF_VAL(cf_get_item_by_name("y_btn"));
   conf.l_btn = CF_VAL(cf_get_item_by_name("l_btn"));
   conf.r_btn = CF_VAL(cf_get_item_by_name("r_btn"));
-  country = CF_STR(cf_get_item_by_name("country"));
-  system = CF_STR(cf_get_item_by_name("system"));
-  if(!strcmp(system, "unibios")) {
-    conf.system = SYS_UNIBIOS;
-  }
-  else {
-    if(!strcmp(system, "home")) {
-      conf.system = SYS_HOME;
-    }
-    else {
-      conf.system = SYS_ARCADE;
-    }
-  }
-  if(!strcmp(country, "japan")) {
-    conf.country = CTY_JAPAN;
-  }
-  else if(!strcmp(country, "usa")) {
-    conf.country = CTY_USA;
-  }
-  else if(!strcmp(country, "asia")) {
-    conf.country = CTY_ASIA;
-  }
-  else {
-    conf.country = CTY_EUROPE;
-  }
+  conf.system = SYS_ARCADE;
+  conf.country = CTY_EUROPE;
 }
 
 static void read_array(int *tab, char *val, int size)
@@ -224,7 +201,7 @@ CONF_ITEM *cf_get_item_by_name(const char *name)
   int i;
   int a = tolower((int) name[0]);
 
-  if(a >= 128){
+  if(a >= 128) {
     return NULL;
   }
 
@@ -267,84 +244,20 @@ void cf_item_has_been_changed(CONF_ITEM *item)
   }
 }
 
-void cf_print_help(void)
-{
-  int i, j;
-  CONF_ITEM *cf;
-  printf("Usage: gngeo [OPTION]... ROMSET\n"
-         "Emulate the NeoGeo rom designed by ROMSET\n\n");
-
-  for(i = 0; i < 128; i++) {
-    for(j = 0; j < cf_hash[i].nb_item; j++) {
-      cf = cf_hash[i].conf[j];
-      if(cf->short_opt < 128 && cf->short_opt >= 32) {
-        printf("  -%c, --", cf->short_opt);
-      }
-      else {
-        printf("      --");
-      }
-      switch(cf->type) {
-      case CFT_ARRAY:
-      case CFT_STR_ARRAY:
-      case CFT_STRING:
-      case CFT_ACTION_ARG:
-      case CFT_INT: {
-        char buf[22];
-        snprintf(buf, 21, "%s=%s", cf->name, cf->help_arg);
-        printf("%-20s %s\n", buf, cf->help);
-      }
-      break;
-      case CFT_BOOLEAN:
-      case CFT_ACTION:
-        printf("%-20s %s\n", cf->name, cf->help);
-        break;
-      }
-    }
-  }
-  printf("\nAll boolean options can be disabled with --no-OPTION\n"
-         "(Ex: --no-sound turn sound off)\n\n");
-}
-
-static int print_help(CONF_ITEM *self)
-{
-  cf_print_help();
-  return 0;
-}
-
-static int show_all_game(CONF_ITEM *self)
-{
-  printf("Not implemented yet\n");
-  return 0;
-}
-
-static int show_version(CONF_ITEM *self)
-{
-  printf("Gngeo %s\n", __DATE__);
-  printf("Copyright (C) 2001 Peponas Mathieu\n\n");
-
-  return 0;
-}
-
 void cf_init(void)
 {
-  cf_create_bool_item("showfps", "Show FPS at startup", 0, GN_FALSE);
-  cf_create_bool_item("sound", "Enable sound", 0, GN_TRUE);
-  cf_create_int_item("samplerate", "Set the sample rate to RATE", "RATE", 0, 22050);
-  cf_create_string_item("country", "Set the contry to japan, asia, usa or europe", "...", 0, "europe");
-  cf_create_string_item("system", "Set the system to home, arcade or unibios", "...", 0, "arcade");
-  cf_create_string_item("rompath", "Tell gngeo where your roms are", "PATH", 'i', ROOTPATH"./roms");
-  cf_create_string_item("biospath", "Tell gngeo where your neogeo bios is", "PATH", 'B', ROOTPATH"./roms");
-  cf_create_string_item("datafile", "Tell gngeo where his ressource file is", "PATH", 'd', ROOTPATH"./gngeo_data.zip");
-  cf_create_string_item("country", "Set the contry to japan, asia, usa or europe", "...", 0, "japan");
-  cf_create_string_item("system", "Set the system to home, arcade or unibios", "...", 0, "home");
-  cf_create_int_item("68kclock", "Overclock the 68k by x% (-x% for underclk)", "x", 0, 0);
-  cf_create_int_item("z80clock", "Overclock the Z80 by x% (-x% for underclk)", "x", 0, 0);
-  cf_create_int_item("l_btn", "Set the custom button", "LBTN", 0, 0);
-  cf_create_int_item("r_btn", "Set the custom button", "RBTN", 0, 0);
-  cf_create_string_item("transpack", "Use the specified transparency pack", "Transpack", 't', "none");
-
+  //char *lr_btn_string[] = {"None", "A", "B", "C", "D", "A+B", "A+C", "A+D", "B+C", "B+D", "C+D", "A+B+C", "A+B+D", "A+C+D", "B+C+D", "A+B+C+D"};
+  cf_create_bool_item("showfps", "Show FPS", 0, GN_FALSE);
+  cf_create_bool_item("sound", "Enable Sound", 0, GN_TRUE);
+  cf_create_int_item("a_btn", "Set Custom Button", "A", 0, 1);
+  cf_create_int_item("b_btn", "Set Custom Button", "B", 0, 2);
+  cf_create_int_item("x_btn", "Set Custom Button", "X", 0, 3);
+  cf_create_int_item("y_btn", "Set Custom Button", "Y", 0, 4);
+  cf_create_int_item("l_btn", "Set Custom Button", "L", 0, 0);
+  cf_create_int_item("r_btn", "Set Custom Button", "R", 0, 0);
+  cf_create_string_item("rompath", "Tell gngeo where your roms are", "PATH", 'i', "/mnt/roms/NEOGEO");
+  cf_create_bool_item("dump", "Create a gno dump in the current dir and exit", 0, GN_FALSE);
   cf_get_item_by_name("rompath")->flags |= CF_SYSTEMOPT;
-  cf_get_item_by_name("datafile")->flags |= CF_SYSTEMOPT;
 }
 
 int discard_line(char *buf)
@@ -391,9 +304,9 @@ int cf_save_option(char *filename, char *optname, int flags)
   FILE *f;
   FILE *f_dst;
   int i = 0, j, a;
-  char buf[512]={0};
-  char name[32]={0};
-  char val[255]={0};
+  char buf[512] = {0};
+  char name[32] = {0};
+  char val[255] = {0};
   CONF_ITEM *cf;
   CONF_ITEM *tosave; //cf_get_item_by_name(optname);
 

@@ -29,21 +29,11 @@
 
 SDL_AudioSpec *desired, *obtain;
 
-#define MIXER_MAX_CHANNELS 16
-//#define CPU_FPS 60
-#define BUFFER_LEN 16384
-//#define BUFFER_LEN
-//extern int throttle;
-static int audio_sample_rate;
+#define MIXER_MAX_CHANNELS  16
+#define BUFFER_LEN          16384
+#define NB_SAMPLES          2048
 Uint16 play_buffer[BUFFER_LEN];
 
-#ifndef GP2X
-#define NB_SAMPLES 512 /* better resolution */
-#else
-//#define NB_SAMPLES 128
-#define NB_SAMPLES 64
-//#define NB_SAMPLES 512
-#endif
 
 #ifndef USE_OSS
 
@@ -67,24 +57,14 @@ int init_sdl_audio(void)
 
   desired = (SDL_AudioSpec *) malloc(sizeof(SDL_AudioSpec));
   obtain = (SDL_AudioSpec *) malloc(sizeof(SDL_AudioSpec));
-  audio_sample_rate = conf.sample_rate;
-  desired->freq = conf.sample_rate;
+  desired->freq = SAMPLE_RATE;
   desired->samples = NB_SAMPLES;
 
-#ifdef WORDS_BIGENDIAN
-  desired->format = AUDIO_S16MSB;
-#else	/* */
   desired->format = AUDIO_S16;
-#endif	/* */
   desired->channels = 2;
   desired->callback = update_sdl_stream;
-
-  //desired->callback = NULL;
   desired->userdata = NULL;
-  //SDL_OpenAudio(desired, NULL);
   SDL_OpenAudio(desired, obtain);
-  printf("Obtained sample rate: %d\n", obtain->freq);
-  conf.sample_rate = obtain->freq;
   return GN_TRUE;
 }
 
@@ -145,7 +125,7 @@ int init_sdl_audio(void)
 {
   int format;
   int channels = 2;
-  int speed = conf.sample_rate;
+  int speed = SAMPLE_RATE;
   int arg = 0x9;
 
   dev_dsp = open("/dev/dsp", O_WRONLY);
@@ -159,12 +139,7 @@ int init_sdl_audio(void)
     return GN_FALSE;
   }
 
-#ifdef WORDS_BIGENDIAN
-  format = AFMT_S16_BE;
-#else	/* */
   format = AFMT_S16_LE;
-#endif	/* */
-
   if(ioctl(dev_dsp, SNDCTL_DSP_SETFMT, &format) == -1) {
     perror("SNDCTL_DSP_SETFMT");
     return GN_FALSE;

@@ -27,7 +27,6 @@
 #include "screen.h"
 #include "gnutil.h"
 #include "messages.h"
-#include "transpack.h"
 #include "frame_skip.h"
 
 #define PEN_USAGE(tileno) ((((uint32_t*)memory.rom.spr_usage.p)[tileno >> 4] >> ((tileno & 0x0f) * 2)) & 3)
@@ -40,12 +39,15 @@ extern int neogeo_fix_bank_type;
 static uint16_t fix_addr[40][32];
 static uint8_t fix_shift[40];
 
+#ifdef ARM
 uint8_t *mem_gfx = NULL;
 uint8_t *mem_video = NULL;
 uint32_t *mem_bank_usage = NULL;
+#endif
+
 uint32_t neogeo_frame_counter;
 
-uint32_t dda_x_skip_i=0;
+uint32_t dda_x_skip_i = 0;
 
 char dda_y_skip[17];
 uint32_t dda_y_skip_i;
@@ -53,8 +55,8 @@ uint32_t full_y_skip_i = 0xfffe;
 char full_y_skip[16] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 unsigned int neogeo_frame_counter_speed = 8;
 
-char *ldda_y_skip=NULL;
-char *dda_x_skip=NULL;
+char *ldda_y_skip = NULL;
+char *dda_x_skip = NULL;
 
 char ddaxskip[16][16] = {
   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
@@ -225,6 +227,7 @@ static void fix_value_init(void)
 #define PUTPIXEL(dst,src) dst=BLEND16_25(src,dst)
 #include "video_template.h"
 
+#ifdef ARM
 static inline void draw_tile_arm(unsigned int tileno, int sx, int sy, int zx, int zy, int color, int xflip, int yflip, unsigned char *bmp)
 {
   uint32_t pitch = 352/*buffer->pitch>>1*/;
@@ -293,6 +296,7 @@ static inline void draw_tile_arm(unsigned int tileno, int sx, int sy, int zx, in
     }
   }
 }
+#endif
 
 static inline void draw_fix_char(unsigned char *buf, int start, int end)
 {
@@ -362,7 +366,49 @@ static inline void draw_fix_char(unsigned char *buf, int start, int end)
       }
 
       br = (unsigned short *) buf + ((y << 3)) * buffer->w + (x << 3) + 16;
+    #ifdef ARM
       draw_one_char_arm(byte1, byte2, br);
+    #else
+    paldata = (unsigned int *) &current_pc_pal[16 * byte2];
+      gfxdata = (unsigned int *) &current_fix[ byte1 << 5];
+
+      for(yy = 0; yy < 8; yy++) {
+        myword = gfxdata[yy];
+        col = (myword >> 28) & 0xf;
+        if(col) {
+          br[7] = paldata[col];
+        }
+        col = (myword >> 24) & 0xf;
+        if(col) {
+          br[6] = paldata[col];
+        }
+        col = (myword >> 20) & 0xf;
+        if(col) {
+          br[5] = paldata[col];
+        }
+        col = (myword >> 16) & 0xf;
+        if(col) {
+          br[4] = paldata[col];
+        }
+        col = (myword >> 12) & 0xf;
+        if(col) {
+          br[3] = paldata[col];
+        }
+        col = (myword >> 8) & 0xf;
+        if(col) {
+          br[2] = paldata[col];
+        }
+        col = (myword >> 4) & 0xf;
+        if(col) {
+          br[1] = paldata[col];
+        }
+        col = (myword >> 0) & 0xf;
+        if(col) {
+          br[0] = paldata[col];
+        }
+        br += buffer->w;
+      }
+    #endif
     }
   if(start != 0 && end != 0) {
     SDL_SetClipRect(buffer, NULL);
@@ -584,6 +630,7 @@ void draw_screen(void)
           tileno = (tileno & ((memory.vid.spr_cache.slot_size >> 7) - 1));
         }
 
+#ifdef ARM
 
         mem_gfx = memory.rom.tiles.p;
         //if (memory.pen_usage[tileno]!=TILE_INVISIBLE)
@@ -591,8 +638,37 @@ void draw_screen(void)
           draw_tile_arm(tileno, sx + 16, sy, rzx, yskip, tileatr >> 8,
                         tileatr & 0x01, tileatr & 0x02,
                         (unsigned char *) buffer->pixels);
-      }
+#else
+switch(penusage) {
+        case TILE_NORMAL:
+          draw_tile(tileno, sx + 16, sy, rzx, yskip, tileatr >> 8,
+                    tileatr & 0x01, tileatr & 0x02,
+                    (unsigned char *) buffer->pixels);
+          break;
+        case TILE_TRANSPARENT50:
+          draw_tile_50(tileno, sx + 16, sy, rzx, yskip, tileatr >> 8,
+                       tileatr & 0x01, tileatr & 0x02,
+                       (unsigned char *) buffer->pixels);
+          break;
+        case TILE_TRANSPARENT25:
+          draw_tile_25(tileno, sx + 16, sy, rzx, yskip, tileatr >> 8,
+                       tileatr & 0x01, tileatr & 0x02,
+                       (unsigned char *) buffer->pixels);
+          break;
+          /*
+            default:
+              {
+                SDL_Rect r={sx+16,sy,rzx,yskip};
+                SDL_FillRect(buffer,&r,0xFFAA);
+              }
+              //((Uint16*)(buffer->pixels))[sx+16+sy*356]=0xFFFF;
 
+              break;
+           */
+        }
+
+#endif
+      }
 
       sy += yskip;
     } /* for y */
@@ -606,7 +682,7 @@ void draw_screen(void)
     conf.do_message--;
   }
   if(conf.show_fps) {
-    SDL_textout(buffer, visible_area.x + 8, 240-9, fps_str);
+    SDL_textout(buffer, visible_area.x + 8, 240 - 9, fps_str);
   }
 
 
@@ -780,7 +856,7 @@ void draw_screen_scanline(int start_line, int end_line, int refresh)
         memory.rom.tiles.p = get_cached_sprite_ptr(tileno);
         tileno = (tileno & ((memory.vid.spr_cache.slot_size >> 7) - 1));
       }
-
+      
       switch(penusage) {
       case TILE_NORMAL:
         draw_scanline_tile(tileno, yoffs, sx + 16, yy, zx, tileatr >> 8,
@@ -796,7 +872,6 @@ void draw_screen_scanline(int start_line, int end_line, int refresh)
         break;
       }
 
-
     }
   } /* for count */
 
@@ -808,7 +883,7 @@ void draw_screen_scanline(int start_line, int end_line, int refresh)
       conf.do_message--;
     }
     if(conf.show_fps) {
-      SDL_textout(buffer, visible_area.x, 240-9, fps_str);
+      SDL_textout(buffer, visible_area.x, 240 - 9, fps_str);
     }
     screen_flip();
   }
@@ -816,12 +891,14 @@ void draw_screen_scanline(int start_line, int end_line, int refresh)
 
 void init_video(void)
 {
+#ifdef ARM
   if(!mem_gfx) {
     mem_gfx = memory.rom.tiles.p;
   }
   if(!mem_video) {
     mem_video = memory.vid.ram;
   }
+#endif
   fix_value_init();
   memory.vid.modulo = 1;
 }

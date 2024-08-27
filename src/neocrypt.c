@@ -46,11 +46,10 @@
 
 ***************************************************************************/
 
-//#include "driver.h"
-//#include "neogeo.h"
-#include "resfile.h"
 #include "mame_layer.h"
 #include "menu.h"
+#include "hex_cmc42.h"
+#include "hex_cmc50.h"
 
 /***************************************************************************
 
@@ -616,7 +615,8 @@ void load_cmc42_table(void)
   	fread(type0_t03,0xB00,1,f);
   	fclose(f);
   */
-  type0_t03 = (UINT8 *)res_load_data("rom/cmc42.xor");
+  printf("%s\n", __func__);
+  type0_t03 = hex_cmc42;//(UINT8 *)res_load_data("rom/cmc42.xor");
   type0_t12 = type0_t03 + 256;
   type1_t03 = type0_t12 + 256;
   type1_t12 = type1_t03 + 256;
@@ -635,7 +635,8 @@ void load_cmc50_table(void)
   	fread(type0_t03,0xB00,1,f);
   	fclose(f);
   */
-  type0_t03 = (UINT8 *)res_load_data("rom/cmc50.xor");
+  printf("%s\n", __func__);
+  type0_t03 = hex_cmc50;//(UINT8 *)res_load_data("rom/cmc50.xor");
   type0_t12 = type0_t03 + 256;
   type1_t03 = type0_t12 + 256;
   type1_t12 = type1_t03 + 256;
@@ -650,7 +651,7 @@ void load_cmc50_table(void)
 }
 
 /* CMC42 protection chip */
-void kof99_neogeo_gfx_decrypt(running_machine *machine, int extra_xor, const  char *dir)
+void kof99_neogeo_gfx_decrypt(running_machine *machine, int extra_xor)
 {
   /*
   type0_t03 =          kof99_type0_t03;
@@ -956,10 +957,10 @@ void neogeo_cmc50_m1_decrypt(running_machine *machine)
     buffer[i] = rom[m1_address_scramble(i, key)];
   }
 
-  memcpy(rom, buffer, rom_size);
-
+  /*memcpy(rom, buffer, rom_size);
   memcpy(rom2, rom, 0x10000);
-  memcpy(rom2 + 0x10000, rom, 0x80000);
+  memcpy(rom2 + 0x10000, rom, 0x80000);*/
+  memcpy(rom2, buffer, 0x80000);
 
 #if 0
   {
@@ -993,7 +994,7 @@ void neogeo_cmc50_m1_decrypt(running_machine *machine)
 #endif
 
   free(buffer);
-  free(type0_t03);
+  //free(type0_t03);
 }
 
 

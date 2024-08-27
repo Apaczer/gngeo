@@ -353,7 +353,7 @@ uint8_t *gn_unzip_file_malloc(PKZIP *zf, const char *filename, uint32_t file_crc
   else {
     readed = fread(data, 1, z->uncsize, z->f);
   }
-  if(readed != z->uncsize){
+  if(readed != z->uncsize) {
     printf("GNZIP: Readed data size different from uncompressed size %d!=%d \n", readed, z->uncsize);
   }
   *outlen = z->uncsize;

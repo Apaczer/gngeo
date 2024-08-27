@@ -17,129 +17,27 @@
 #include "gnutil.h"
 #include "menu.h"
 
+#ifdef ARM
 static int m68k_flag = 0x3;
-
 static int z80_flag = 0xC;
-
-#ifdef WORDS_BIGENDIAN
-static int endian_flag = 0x10;
 #else
+static int m68k_flag = 0x2;
+static int z80_flag = 0x8;
+#endif
+
+
 static int endian_flag = 0x0;
-#endif
 
-#if defined (WII)
-#define ROOTPATH "sd:/apps/gngeo/"
-#elif defined (__AMIGA__)
-#define ROOTPATH "/PROGDIR/data/"
-#else
-#define ROOTPATH ""
-#endif
-
-//static ST_REG *reglist;
-//static ST_MODULE st_mod[ST_MODULE_END];
-//static SDL_Rect buf_rect    =	{24, 16, 304, 224};
-//static SDL_Rect screen_rect =	{ 0,  0, 304, 224};
 SDL_Surface *state_img_tmp;
 
 void cpu_68k_mkstate(gzFile gzf, int mode);
 void cpu_z80_mkstate(gzFile gzf, int mode);
 void ym2610_mkstate(gzFile gzf, int mode);
-#if 0
-void create_state_register(ST_MODULE_TYPE module, const char *reg_name,
-                           Uint8 num, void *data, int size, ST_DATA_TYPE type)
-{
-  ST_REG *t = (ST_REG *)calloc(1, sizeof(ST_REG));
-  t->next = st_mod[module].reglist;
-  st_mod[module].reglist = t;
-  t->reg_name = strdup(reg_name);
-  t->data = data;
-  t->size = size;
-  t->type = type;
-  t->num = num;
-}
-
-void set_pre_save_function(ST_MODULE_TYPE module, void (*func)(void))
-{
-  st_mod[module].pre_save_state = func;
-}
-
-void set_post_load_function(ST_MODULE_TYPE module, void (*func)(void))
-{
-  st_mod[module].post_load_state = func;
-}
-
-static void *find_data_by_name(ST_MODULE_TYPE module, Uint8 num, char *name)
-{
-  ST_REG *t = st_mod[module].reglist;
-  while(t) {
-    if((!strcmp(name, t->reg_name)) && (t->num == num)) {
-      /*
-       *len=t->size;
-       *type=t->type;
-       */
-      return t->data;
-    }
-    t = t->next;
-  }
-  return NULL;
-}
-
-static int sizeof_st_type(ST_DATA_TYPE type)
-{
-  switch(type) {
-  case REG_UINT8:
-  case REG_INT8:
-    return 1;
-  case REG_UINT16:
-  case REG_INT16:
-    return 2;
-  case REG_UINT32:
-  case REG_INT32:
-    return 4;
-  }
-  return 0; /* never go here */
-}
-
-void swap_buf16_if_need(Uint8 src_endian, Uint16 *buf, Uint32 size)
-{
-  int i;
-#ifdef WORDS_BIGENDIAN
-  Uint8  my_endian = 1;
-#else
-  Uint8  my_endian = 0;
-#endif
-  if(my_endian != src_endian) {
-    for(i = 0; i < size; i++) {
-      SDL_Swap16(buf[i]);
-    }
-  }
-}
-
-void swap_buf32_if_need(Uint8 src_endian, Uint32 *buf, Uint32 size)
-{
-  int i;
-#ifdef WORDS_BIGENDIAN
-  Uint8  my_endian = 1;
-#else
-  Uint8  my_endian = 0;
-#endif
-  if(my_endian != src_endian) {
-    for(i = 0; i < size; i++) {
-      buf[i] = SDL_Swap32(buf[i]);
-    }
-  }
-}
-#endif
 Uint32 how_many_slot(char *game)
 {
   char *st_name;
   FILE *f;
-//    char *st_name_len;
-#ifdef EMBEDDED_FS
-  char *gngeo_dir = ROOTPATH"save/";
-#else
   char *gngeo_dir = get_gngeo_dir();
-#endif
   Uint32 slot = 0;
   st_name = (char *)alloca(strlen(gngeo_dir) + strlen(game) + 5);
   while(1) {
@@ -158,12 +56,7 @@ Uint32 how_many_slot(char *game)
 static gzFile open_state(char *game, int slot, int mode)
 {
   char *st_name;
-//    char *st_name_len;
-#ifdef EMBEDDED_FS
-  char *gngeo_dir = ROOTPATH"save/";
-#else
   char *gngeo_dir = get_gngeo_dir();
-#endif
   char string[20];
   char *m = (mode == STWRITE ? "wb" : "rb");
   gzFile gzf;

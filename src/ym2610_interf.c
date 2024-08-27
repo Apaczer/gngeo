@@ -3,6 +3,7 @@
 #include "emu.h"
 #include "memory.h"
 #include "timer.h"
+#include "sound.h"
 
 static timer_struct *Timer[2];
 
@@ -51,25 +52,9 @@ void FMTimerInit(void)
   Timer[0] = Timer[1] = 0;
   free_all_timer();
 }
-#if 0
-/* update request from fm.c */
-void YM2610UpdateRequest(void)
-{
-  static double old_tc;
-  //static Uint32 old_tc;
-  double tc = timer_count - old_tc;
-  //Uint32 tc=timer_count-old_tc;
-  int len = (int)((conf.sample_rate * tc) >> TIMER_SH) << 2;
-  if(len > 4) {
-    old_tc = timer_count;
-    streamupdate(len);
-  }
-}
-#endif
-
 int YM2610_sh_start(void)
 {
-  int rate = conf.sample_rate;
+  int rate = SAMPLE_RATE;
   void *pcmbufa, *pcmbufb;
   int pcmsizea, pcmsizeb;
 

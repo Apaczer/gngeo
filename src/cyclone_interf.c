@@ -536,8 +536,7 @@ int cyclone_debug(unsigned short o)
 
 void cpu_68k_init(void)
 {
-  int overclk = CF_VAL(cf_get_item_by_name("68kclock"));
-  //printf("INIT \n");
+  int overclk = 0;
   CycloneInit();
   memset(&MyCyclone, 0, sizeof(MyCyclone));
   /*
@@ -594,7 +593,7 @@ void cpu_68k_reset(void)
 
 int cpu_68k_run(Uint32 nb_cycle)
 {
-  int i=0;
+  int i = 0;
 
   current_line = 0;
   total_cycles = nb_cycle;

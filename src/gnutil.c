@@ -58,11 +58,7 @@ int check_dir(char *dir_name)
   DIR *d;
 
   if(!(d = opendir(dir_name)) && (errno == ENOENT)) {
-#ifdef WIN32
-    mkdir(dir_name);
-#else
     mkdir(dir_name, 0755);
-#endif
     return GN_FALSE;
   }
   if(d) {
@@ -71,40 +67,19 @@ int check_dir(char *dir_name)
   return GN_TRUE;
 }
 
-/* return a char* to $HOME/.gngeo/
-   DO NOT free it!
- */
-#ifdef EMBEDDED_FS
-
-char *get_gngeo_dir(void)
-{
-  static char *filename = ROOTPATH"";
-  return filename;
-}
-#else
-
 char *get_gngeo_dir(void)
 {
   static char *filename = NULL;
-#if defined (__AMIGA__)
-  int len = strlen("/PROGDIR/data/") + 1;
-#else
   int len = strlen(getenv("HOME")) + strlen("/.gngeo/") + 1;
-#endif
   if(!filename) {
     filename = malloc(len * sizeof(char));
     CHECK_ALLOC(filename);
-#if defined (__AMIGA__)
-    sprintf(filename, "/PROGDIR/data/");
-#else
     sprintf(filename, "%s/.gngeo/", getenv("HOME"));
-#endif
   }
   check_dir(filename);
-  //printf("get_gngeo_dir %s\n",filename);
+  printf("get_gngeo_dir %s\n", filename);
   return filename;
 }
-#endif
 
 void gn_set_error_msg(char *fmt, ...)
 {
@@ -113,9 +88,6 @@ void gn_set_error_msg(char *fmt, ...)
   vsnprintf(gnerror, GNERROR_SIZE, fmt, pvar);
 }
 
-/*
- * replace any ending / with a 0
- */
 void gn_rtrim_slash(char *dir)
 {
   if(dir[strlen(dir) - 1] == '/' && strlen(dir) != 1) {
