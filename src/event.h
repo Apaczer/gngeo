@@ -1,55 +1,34 @@
-#ifndef GNEVENT_H
-#define GNEVENT_H
+/*
+ *  Copyright (C) 2021 Steward Fu
+ *  Copyright (C) 2001 Peponas Mathieu
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 
-#include "SDL.h"
+#ifndef __EVENT_H__
+#define __EVENT_H__
 
-typedef enum {
-	GN_NONE=0,
-	GN_A,
-	GN_B,
-	GN_C,
-	GN_D,
-	GN_UP,
-	GN_DOWN,
-	GN_LEFT,
-	GN_RIGHT,
-	GN_START,
-	GN_SELECT_COIN,
-	GN_MENU_KEY,
-	GN_HOTKEY1,
-	GN_HOTKEY2,
-	GN_HOTKEY3,
-	GN_HOTKEY4,
-	GN_MAX_KEY,
-}GNGEO_BUTTON;
+#define KEY_UP    0
+#define KEY_DOWN  1
+#define KEY_LEFT  2
+#define KEY_RIGHT 3
+#define KEY_A     4
+#define KEY_B     5
+#define KEY_C     6
+#define KEY_D     7
 
-struct BUT_MAP {
-	Uint8 player; /* 0=none 1=p1 2=p2 3=both */
-	GNGEO_BUTTON map; /* Mapped button */
-};
-struct BUT_MAPJAXIS {
-	Uint8 player; /* 0=none 1=p1 2=p2 3=both */
-	GNGEO_BUTTON map; /* Mapped button */
-	int dir; /* Only for joystick axis */
-	int value;
-};
-
-typedef struct JOYMAP {
-	struct BUT_MAP key[SDLK_LAST];
-	struct BUT_MAP **jbutton;
-	struct BUT_MAPJAXIS **jaxe;
-	struct BUT_MAP **jhat;
-}JOYMAP;
-
-JOYMAP *jmap;
-Uint8 joy_state[2][GN_MAX_KEY];
-
-
-int init_event(void);
-
-int create_joymap_from_string(int player,char *jconf);
 int handle_event(void);
-int wait_event(void);
-void reset_event(void);
 
 #endif

@@ -1,9 +1,10 @@
-/*  gngeo, a neogeo emulator
+/*
+ *  Copyright (C) 2021 Steward Fu
  *  Copyright (C) 2001 Peponas Mathieu
- * 
- *  This program is free software; you can redistribute it and/or modify  
- *  it under the terms of the GNU General Public License as published by   
- *  the Free Software Foundation; either version 2 of the License, or    
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
  *  This program is distributed in the hope that it will be useful,
@@ -13,14 +14,11 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/time.h>
 #include <math.h>
 #include "SDL.h"
@@ -30,150 +28,116 @@
 #include "conf.h"
 #include "gnutil.h"
 
-#ifndef uclock_t
-#define uclock_t Uint32
-#endif
-
 #define TICKS_PER_SEC 1000000UL
-//#define CPU_FPS 60
-//static int CPU_FPS=60;
-static uclock_t F;
+static uint32_t F;
 
 #define MAX_FRAMESKIP 10
 
+char fps_str[32];
 static char init_frame_skip = 1;
 char skip_next_frame = 0;
-#if defined(HAVE_GETTIMEOFDAY) && !defined(WII)
 static int CPU_FPS = 60;
 static struct timeval init_tv = { 0, 0 };
-#else
-/* Looks like SDL_GetTicks is not as precise... */
-static int CPU_FPS=61;
-static Uint32 init_tv=0;
-#endif
-uclock_t bench;
 
-#if defined(HAVE_GETTIMEOFDAY) && !defined(WII)
-uclock_t get_ticks(void) {
-	struct timeval tv;
-
-	gettimeofday(&tv, 0);
-	if (init_tv.tv_sec == 0)
-		init_tv = tv;
-	return (tv.tv_sec - init_tv.tv_sec) * TICKS_PER_SEC + tv.tv_usec
-			- init_tv.tv_usec;
-
-}
-#else
-Uint32 get_ticks(void)
+uint32_t get_ticks(void)
 {
-	Uint32 tv;
-	if (init_tv==0)
-	init_tv=SDL_GetTicks();
-	return (SDL_GetTicks()-init_tv)*1000;
-}
-#endif
+  struct timeval tv;
 
-void reset_frame_skip(void) {
-#if defined(HAVE_GETTIMEOFDAY) && !defined(WII)
-	init_tv.tv_usec = 0;
-	init_tv.tv_sec = 0;
-#else
-	init_tv=0;
-#endif
-	skip_next_frame = 0;
-	init_frame_skip = 1;
-	if (conf.pal)
-		CPU_FPS = 50;
-	F = (uclock_t) ((double) TICKS_PER_SEC / CPU_FPS);
+  gettimeofday(&tv, 0);
+  if(init_tv.tv_sec == 0) {
+    init_tv = tv;
+  }
+  return (tv.tv_sec - init_tv.tv_sec) * TICKS_PER_SEC + tv.tv_usec - init_tv.tv_usec;
+
 }
 
-int frame_skip(int init) {
-	static int f2skip;
-	static uclock_t sec = 0;
-	static uclock_t rfd;
-	static uclock_t target;
-	static int nbFrame = 0;
-	static unsigned int nbFrame_moy = 0;
-	static int nbFrame_min = 1000;
-	static int nbFrame_max = 0;
-	static int skpFrm = 0;
-	static int count = 0;
-	static int moy = 60;
+void reset_frame_skip(void)
+{
+  init_tv.tv_usec = 0;
+  init_tv.tv_sec = 0;
+  skip_next_frame = 0;
+  init_frame_skip = 1;
+  F = (uint32_t)((double) TICKS_PER_SEC / CPU_FPS);
+}
 
-	if (init_frame_skip) {
-		init_frame_skip = 0;
-		target = get_ticks();
-		bench = (CF_BOOL(cf_get_item_by_name("bench")) ? 1/*get_ticks()*/: 0);
+static int __attribute__((noinline)) get_cpu_ticks(void)
+{
+  static int fd=0;
+  static unsigned long last_utime=0;
 
-		nbFrame = 0;
-		//f2skip=0;
-		//skpFrm=0;
-		sec = 0;
-		return 0;
-	}
+  char buf[128]={0};
+  unsigned long utime=0, ret=0;
 
-	target += F;
-	if (f2skip > 0) {
-		f2skip--;
-		skpFrm++;
-		return GN_TRUE;
-	} else
-		skpFrm = 0;
-//	printf("%d %d\n",conf.autoframeskip,conf.show_fps);
+  if(fd == 0){
+    fd = open("/proc/self/stat", O_RDONLY);
+  }
+  lseek(fd, 0, SEEK_SET);
+  buf[0] = 0;
+  read(fd, buf, sizeof(buf));
+  buf[sizeof(buf) - 1] = 0;
 
-	rfd = get_ticks();
+  sscanf(buf, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu", &utime);
+  ret = utime - last_utime;
+  if (ret > 200){
+    ret = 0;
+  }
+  last_utime = utime;
+  return ret;
+}
 
-	if (conf.autoframeskip) {
-		if (rfd < target && f2skip == 0)
-			while (get_ticks() < target) {
-#ifndef WIN32
-				if (conf.sleep_idle) {
-					usleep(5);
-				}
-#endif
-			}
-		else {
-			f2skip = (rfd - target) / (double) F;
-			if (f2skip > MAX_FRAMESKIP) {
-				f2skip = MAX_FRAMESKIP;
-				reset_frame_skip();
-			}
-			// printf("Skip %d frame(s) %lu %lu\n",f2skip,target,rfd);
-		}
-	}
+int frame_skip(void)
+{
+  static int f2skip;
+  static uint32_t sec = 0;
+  static uint32_t rfd;
+  static uint32_t target;
+  static int nbFrame = 0;
+  static unsigned int nbFrame_moy = 0;
+  static int nbFrame_min = 1000;
+  static int nbFrame_max = 0;
+  static int skpFrm = 0;
+  static int count = 0;
+  static int moy = 60;
 
-	nbFrame++;
-	nbFrame_moy++;
-	/*
-	 if(bench && totalFrame++>=5000) {
-	 printf("average fps=%f \n",(TICKS_PER_SEC*5000.0/(get_ticks()-bench)));
-	 exit(0);
-	 }
-	 */
-	if (conf.show_fps) {
-		if (get_ticks() - sec >= TICKS_PER_SEC) {
-			//printf("%d\n",nbFrame);
-			if (bench) {
+  if(init_frame_skip) {
+    init_frame_skip = 0;
+    target = get_ticks();
+    nbFrame = 0;
+    sec = 0;
+    return 0;
+  }
 
-				if (nbFrame_min > nbFrame)
-					nbFrame_min = nbFrame;
-				if (nbFrame_max < nbFrame)
-					nbFrame_max = nbFrame;
-				count++;
-				moy = nbFrame_moy / (float) count;
+  target += F;
+  if(f2skip > 0) {
+    f2skip-= 1;
+    skpFrm+= 1;
+    return 1;;
+  }
+  else {
+    skpFrm = 0;
+  }
 
-				if (count == 30)
-					count = 0;
-				sprintf(fps_str, "%d %d %d %d\n", nbFrame - 1, nbFrame_min - 1,
-						nbFrame_max - 1, moy - 1);
-			} else {
-				sprintf(fps_str, "%2d", nbFrame - 1);
-			}
+  rfd = get_ticks();
+  if(rfd < target && f2skip == 0)
+    while(get_ticks() < target) {
+      usleep(5);
+    }
+  else {
+    f2skip = (rfd - target) / (double) F;
+    if(f2skip > MAX_FRAMESKIP) {
+      f2skip = MAX_FRAMESKIP;
+      reset_frame_skip();
+    }
+  }
 
-			nbFrame = 0;
-			sec = get_ticks();
-		}
-	}
-	return GN_FALSE;
+  nbFrame++;
+  nbFrame_moy++;
+  if(conf.show_fps) {
+    if((get_ticks() - sec) >= TICKS_PER_SEC) {
+      sprintf(fps_str, "FPS %2d / CPU %2d%%", nbFrame - 1, get_cpu_ticks());
+      nbFrame = 0;
+      sec = get_ticks();
+    }
+  }
+  return 0;
 }

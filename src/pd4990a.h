@@ -2,8 +2,7 @@
  *	Header file for the PD4990A Serial I/O calendar & clock.
  */
 #include "memory.h"
-struct pd4990a_s
-{
+struct pd4990a_s {
   int seconds;
   int minutes;
   int hours;

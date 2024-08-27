@@ -1,9 +1,10 @@
-/*  gngeo a neogeo emulator
+/*
+ *  Copyright (C) 2021 Steward Fu
  *  Copyright (C) 2001 Peponas Mathieu
- * 
- *  This program is free software; you can redistribute it and/or modify  
- *  it under the terms of the GNU General Public License as published by   
- *  the Free Software Foundation; either version 2 of the License, or    
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
  *  This program is distributed in the hope that it will be useful,
@@ -13,57 +14,50 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _VIDEO_H_
-#define _VIDEO_H_
+#ifndef __VIDEO_H__
+#define __VIDEO_H__
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include "SDL.h"
+#include <SDL.h>
 
 typedef struct gfx_cache {
-	Uint8 *data;  /* The cache */
-	Uint32 size;  /* Tha allocated size of the cache */      
-	Uint32 total_bank;  /* total number of rom bank */
-	Uint8 **ptr/*[TOTAL_GFX_BANK]*/; /* ptr[i] Contain a pointer to cached data for bank i */
-	int max_slot; /* Maximal numer of bank that can be cached (depend on cache size) */
-	int slot_size;
-	int *usage;   /* contain index to the banks in used order */
-	FILE *gno;
-    Uint32 *offset;
-    Uint8* in_buf;
-}GFX_CACHE;
+  uint8_t *data;
+  uint32_t size;
+  uint32_t total_bank;
+  uint8_t **ptr;
+  int max_slot;
+  int slot_size;
+  int *usage;
+  FILE *gno;
+  uint32_t *offset;
+  uint8_t *in_buf;
+} GFX_CACHE;
 
 typedef struct VIDEO {
-	/* Video Ram&Pal */
-	Uint8 ram[0x20000];
-	Uint8 pal_neo[2][0x2000];
-	Uint8 pal_host[2][0x4000];
-	Uint8 currentpal;
-        Uint8 currentfix; /* 0=bios fix */
-	Uint16 rbuf;
+  uint8_t ram[0x20000];
+  uint8_t pal_neo[2][0x2000];
+  uint8_t pal_host[2][0x4000];
+  uint8_t currentpal;
+  uint8_t currentfix;
+  uint16_t rbuf;
 
-	/* Auto anim counter */
-	Uint32 fc;
-	Uint32 fc_speed;
+  uint32_t fc;
+  uint32_t fc_speed;
 
-	Uint32 vptr;
-	Sint16 modulo;
+  uint32_t vptr;
+  int16_t modulo;
 
-	Uint32 current_line;
+  uint32_t current_line;
 
-	/* IRQ2 related */
-	Uint32 irq2control;
-	Uint32 irq2taken;
-	Uint32 irq2start;
-	Uint32 irq2pos;
+  uint32_t irq2control;
+  uint32_t irq2taken;
+  uint32_t irq2start;
+  uint32_t irq2pos;
 
-    GFX_CACHE spr_cache;
-}VIDEO;
+  GFX_CACHE spr_cache;
+} VIDEO;
 
 #define RASTER_LINES 261
 
@@ -71,12 +65,19 @@ extern unsigned int neogeo_frame_counter;
 extern unsigned int neogeo_frame_counter_speed;
 
 void init_video(void);
-void debug_draw_tile(unsigned int tileno,int sx,int sy,int zx,int zy,
-		     int color,int xflip,int yflip,unsigned char *bmp);
 void draw_screen_scanline(int start_line, int end_line, int refresh);
 void draw_screen(void);
-// void show_cache(void);
-int init_sprite_cache(Uint32 size,Uint32 bsize);
+int init_sprite_cache(uint32_t size, uint32_t bsize);
 void free_sprite_cache(void);
+
+void draw_tile_arm_xflip_norm(uint32_t, uint32_t, void *, uint32_t);
+void draw_tile_arm_yflip_norm(uint32_t, uint32_t, void *, uint32_t);
+void draw_tile_arm_xyflip_norm(uint32_t, uint32_t, void *, uint32_t);
+void draw_tile_arm_xzoom(uint32_t, uint32_t, void *, uint32_t);
+void draw_tile_arm_xflip_xzoom(uint32_t, uint32_t, void *, uint32_t);
+void draw_tile_arm_yflip_xzoom(uint32_t, uint32_t, void *, uint32_t);
+void draw_tile_arm_xyflip_xzoom(uint32_t, uint32_t, void *, uint32_t);
+void draw_one_char_arm(int byte1, int byte2, unsigned short *br);
+int draw_tile_arm_norm(unsigned int tileno, int color, void *bmp, int zy);
 
 #endif
