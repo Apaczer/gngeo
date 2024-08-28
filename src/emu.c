@@ -43,6 +43,7 @@ int current_line;
 extern char skip_next_frame;
 extern SDL_Rect visible_area;
 extern SDL_Surface *buffer;
+extern SDL_Surface *state_img;
 
 //static int arcade;
 //

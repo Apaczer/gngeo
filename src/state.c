@@ -26,9 +26,14 @@ static int z80_flag = 0x8;
 #endif
 
 
+
 static int endian_flag = 0x0;
 
+struct SDL_Surface *state_img_tmp;
 SDL_Surface *state_img_tmp;
+struct SDL_Surface *state_image;
+SDL_Surface *state_img;
+uint8_t state_version;
 
 void cpu_68k_mkstate(gzFile gzf, int mode);
 void cpu_z80_mkstate(gzFile gzf, int mode);

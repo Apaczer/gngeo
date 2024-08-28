@@ -40,7 +40,7 @@ typedef enum COUNTRY {
   CTY_MAX
 } COUNTRY;
 
-struct {
+struct config {
   char *game;
   uint8_t sound;
   uint8_t do_message;
@@ -59,7 +59,36 @@ struct {
   uint16_t y_btn;
   uint16_t l_btn;
   uint16_t r_btn;
-} conf;
+  Uint16 x_start;
+  Uint16 y_start;
+  Uint16 res_x;
+  Uint16 res_y;
+  Uint16 sample_rate;
+  Uint16 test_switch;
+  Uint8 vsync;
+  //Uint8 snd_st_reg_create;
+  Uint8 nb_joy;
+  Uint8 raster;
+  Uint8 debug;
+  Uint8 pal;
+  Uint8 accurate940;
+  Uint8 autoframeskip;
+  Uint8 sleep_idle;
+  Uint8 screen320;
+  char fps[4];
+  int *p1_key;
+  int *p2_key;
+  SDL_Joystick **joy;
+  int *p1_joy;
+  int *p2_joy;
+  int *p1_hotkey0, *p1_hotkey1, *p1_hotkey2, *p1_hotkey3;
+  int *p2_hotkey0, *p2_hotkey1, *p2_hotkey2, *p2_hotkey3;
+
+  int p1_hotkey[4];
+  int p2_hotkey[4];
+};
+
+extern struct config conf;
 
 enum {
   BUT_A = 0,
@@ -80,17 +109,17 @@ enum {
   AXE_Y_DIR
 };
 
-uint8_t key[SDLK_LAST];
-uint8_t *joy_button[2];
-int32_t *joy_axe[2];
-uint32_t joy_numaxes[2];
+extern uint8_t key[SDLK_LAST];
+extern uint8_t *joy_button[2];
+extern int32_t *joy_axe[2];
+extern uint32_t joy_numaxes[2];
 
-void debug_loop(void);
-void main_loop(void);
-void init_neo(void);
-void cpu_68k_dpg_step(void);
-void setup_misc_patch(char *name);
-void neogeo_reset(void);
+extern void debug_loop(void);
+extern void main_loop(void);
+extern void init_neo(void);
+extern void cpu_68k_dpg_step(void);
+extern void setup_misc_patch(char *name);
+extern void neogeo_reset(void);
 
 #endif
 

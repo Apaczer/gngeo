@@ -20,7 +20,8 @@
 #ifndef __FRAME_SKIP_H__
 #define __FRAME_SKIP_H__
 
-int frame_skip(void);
-void reset_frame_skip(void);
+extern int frame_skip(void);
+extern void reset_frame_skip(void);
+extern char fps_str[32];
 
 #endif

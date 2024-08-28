@@ -37,6 +37,20 @@ SDL_Rect visible_area = {0};
 static SDL_Rect drt = {0, 8, 320, 224};
 static SDL_Rect left_border = {16, 16, 8, 224};
 static SDL_Rect right_border = {16 + 312, 16, 8, 224};
+RGB2YUV rgb2yuv[65536];
+
+SDL_Surface *screen;
+SDL_Surface *buffer, *sprbuf, *fps_buf, *scan, *fontbuf;
+SDL_Rect visible_area;
+int yscreenpadding;
+uint8_t interpolation;
+uint8_t nblitter;
+uint8_t neffect;
+uint8_t scale;
+uint8_t fullscreen;
+
+
+int effect_none_init(void);
 
 void screen_flip(void)
 {

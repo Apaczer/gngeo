@@ -29,6 +29,6 @@
 #define KEY_C     6
 #define KEY_D     7
 
-int handle_event(void);
+extern int handle_event(void);
 
 #endif

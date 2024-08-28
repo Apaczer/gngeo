@@ -39,6 +39,8 @@ static struct {
   int size, nb_item;
 } cf_hash[128] = {0};
 
+struct config conf;
+
 
 void cf_cache_conf(void)
 {
