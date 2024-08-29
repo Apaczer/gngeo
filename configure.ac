@@ -48,6 +48,9 @@ AM_PATH_SDL($SDL_VERSION,,AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!]
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
+# Check for SDL_image
+AC_CHECK_LIB(SDL_image,IMG_Load_RW,[LIBS+=" -lSDL_image"],[AC_MSG_ERROR([*** SDL_image development lib not found!])])
+
 # Setup platform specific optimisation/source/cflags/libs/etc.
 if test "x$enable_gp2x" = xtrue ; then
 	AC_DEFINE([GP2X],[1],[Define if you build for gp2x])
