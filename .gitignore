@@ -47,5 +47,9 @@ gen68k
 *.exe
 
 # distribution archives
-
+*.ipk
 gngeo-*.tar*
+
+# distribution directories
+assets/
+dist/

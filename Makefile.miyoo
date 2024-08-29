@@ -1,17 +1,21 @@
 # credits @GXB
 
 TARGET  = gngeo
-CROSS   = arm-linux-
-CC      = $(CROSS)gcc
-CXX     = $(CROSS)g++
-LD      = $(CROSS)gcc
-STRIP   = $(CROSS)strip
-CFLAGS += `/opt/miyoo/arm-miyoo-linux-uclibcgnueabi/sysroot/usr/bin/sdl-config --cflags`
+CHAINPREFIX     ?=/opt/miyoo
+CROSS_COMPILE   ?= arm-linux-
+CC      = $(CROSS_COMPILE)gcc
+CXX     = $(CROSS_COMPILE)g++
+LD      = $(CROSS_COMPILE)gcc
+STRIP   = $(CROSS_COMPILE)strip
+PKG_CONFIG ?= $(CHAINPREFIX)/usr/bin/pkg-config
+PKGS = sdl SDL_image zlib
+PKGS_CFLAGS = $(shell $(PKG_CONFIG) --cflags $(PKGS))
+PKGS_LIBS = $(shell $(PKG_CONFIG) --libs $(PKGS))
+CFLAGS = $(PKGS_CFLAGS)
 #CFLAGS += -ggdb
 CFLAGS += -D_GNU_SOURCE=1 -D_REENTRANT -DARM
-CFLAGS += -fstrength-reduce -frerun-loop-opt -funroll-loops -ffast-math -fexpensive-optimizations -fomit-frame-pointer -fno-strict-aliasing -O3
-LDFLAGS+= `/opt/miyoo/arm-miyoo-linux-uclibcgnueabi/sysroot/usr/bin/sdl-config --libs` -lSDL_image
-LDFLAGS+= -lm -lz
+CFLAGS += -O3 -fstrength-reduce -frerun-loop-opt -funroll-loops -ffast-math -fexpensive-optimizations -fomit-frame-pointer -fno-strict-aliasing
+LDFLAGS = $(PKGS_LIBS)
 OBJS    = \
   src/messages.o \
   src/drv.o \
@@ -47,7 +51,7 @@ OBJS    = \
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -o $@
+	$(LD) $(OBJS) -o $@ $(LDFLAGS)
 	$(STRIP) $(TARGET)
 
 %.o: %.c 
@@ -58,6 +62,18 @@ $(TARGET): $(OBJS)
 
 %.o: %.S 
 	$(CXX) $(ASFLAGS) $(CXXFLAGS) -c $< -o $@
+
+release: all
+	@mkdir -p assets
+	cp icon.png assets/
+	cp aliases.txt assets/
+	cp gngeo.dat/gngeo_data.zip assets/
+	@mkdir -p dist
+	cp -r assets/* dist/
+	install -m0755 -D $(TARGET) dist/
+
+ipk: release
+	gm2xpkg -c -i miyoo-pkg.cfg
 
 clean:
 	rm -rf $(OBJS) $(TARGET)
