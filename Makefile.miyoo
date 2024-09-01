@@ -66,6 +66,7 @@ $(TARGET): $(OBJS)
 release: all
 	@mkdir -p assets
 	cp icon.png assets/
+	cp miyoo-sample_gngeorc assets/
 	cp aliases.txt assets/
 	cp gngeo.dat/gngeo_data.zip assets/
 	@mkdir -p dist

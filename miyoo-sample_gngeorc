@@ -1,0 +1,23 @@
+# GNGEO Sample config /mnt/.gngeo/gngeorc file
+
+# Where your roms & bioses are?
+rompath /usr/games/lib/gngeo
+
+# Have sound?
+sound true
+
+# Shown FPS
+showfps false
+
+# Set Custom Button A/B/X/Y/L/R
+# 0=nothing, 1=A, 2=B, 3=C, 4=D
+# 5=A+B, 6=A+C, 7=A+D, 8=B+C, 9=B+D, 10=C+D
+# 11=A+B+C, 12=A+B+D, 13=A+C+D, 14=B+C+D
+# 15=A+B+C+D
+# Example setup:
+a_btn 1
+b_btn 5
+x_btn 2
+y_btn 3
+l_btn 4
+r_btn 6

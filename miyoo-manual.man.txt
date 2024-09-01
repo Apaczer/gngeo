@@ -1,0 +1,32 @@
+GNGEO : a Neo Geo AES/MVS emulator (without NG-CD support) based of MAME ROMsets.
+
+BIOS: Default directory is /mnt/roms/NEOGEO/ for all bioses. 
+    First of all the system will look for `neogeo.zip` archive,then it will try to locate `uni-bios.rom` in the same dir. 
+    If both bioses are present you can't force uni-bios to be loaded, it shall defer to `neogeo.zip`.
+
+CONFIGURATION :
+    All configuration can be done in /mnt/.gngeo/gngeorc
+    a sample file is provide : miyoo-sample_gngeorc
+    Every option are also accessible on the command line.
+    Per game configuration is also possible in /mnt/.gngeo/game.rc
+
+    By default, gngeo search bios and games in
+    /mnt/roms/NEOGEO/ (the game must be in a zip file, the bios not)
+
+NOTES:
+Please use non-merge ROMSET to emulate the NeoGeo rom designed by ROMSET preferably from MAME 0.128 or FBA 2012 romset.
+
+Usage: gngeo [OPTION]... ROMSET
+      --showfps              Show FPS at startup
+      --sound                Enable sound
+  -i, --rompath=PATH     Tell gngeo where your roms & bioses are
+  -A, --a_btn            Set Custom Button A
+  -B, --b_btn            Set Custom Button B
+  -X, --x_btn            Set Custom Button X
+  -Y, --y_btn            Set Custom Button Y
+  -L, --l_btn            Set Custom Button L
+  -R, --r_btn            Set Custom Button R
+      --dump             Create a gno dump in the current working dir and exit
+
+All boolean options can be disabled with --no-OPTION
+(Ex: --no-sound turn sound off)
