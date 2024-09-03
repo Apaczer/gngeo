@@ -1,8 +1,8 @@
 # credits @GXB
 
 TARGET  = gngeo
-CHAINPREFIX     ?=/opt/miyoo
-CROSS_COMPILE   ?= arm-linux-
+CHAINPREFIX     ?= /opt/miyoo
+CROSS_COMPILE   ?= $(CHAINPREFIX)/usr/bin/arm-linux-
 CC      = $(CROSS_COMPILE)gcc
 CXX     = $(CROSS_COMPILE)g++
 LD      = $(CROSS_COMPILE)gcc
