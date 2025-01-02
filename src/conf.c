@@ -44,6 +44,8 @@ struct config conf;
 
 void cf_cache_conf(void)
 {
+  char *country;
+  char *system;
   conf.show_fps = CF_BOOL(cf_get_item_by_name("showfps"));
   conf.sound = CF_BOOL(cf_get_item_by_name("sound"));
   conf.a_btn = CF_VAL(cf_get_item_by_name("a_btn"));
@@ -52,8 +54,31 @@ void cf_cache_conf(void)
   conf.y_btn = CF_VAL(cf_get_item_by_name("y_btn"));
   conf.l_btn = CF_VAL(cf_get_item_by_name("l_btn"));
   conf.r_btn = CF_VAL(cf_get_item_by_name("r_btn"));
+  country = CF_STR(cf_get_item_by_name("country"));
+  system = CF_STR(cf_get_item_by_name("system"));
+  if(!strcmp(system, "unibios")) {
+    conf.system = SYS_UNIBIOS;
+  }
+  else {
+    if(!strcmp(system, "home")) {
+      conf.system = SYS_HOME;
+    }
+    else {
   conf.system = SYS_ARCADE;
+    }
+  }
+  if(!strcmp(country, "japan")) {
+    conf.country = CTY_JAPAN;
+  }
+  else if(!strcmp(country, "usa")) {
+    conf.country = CTY_USA;
+  }
+  else if(!strcmp(country, "asia")) {
+    conf.country = CTY_ASIA;
+  }
+  else {
   conf.country = CTY_EUROPE;
+  }
 }
 
 static void read_array(int *tab, char *val, int size)
@@ -246,11 +271,73 @@ void cf_item_has_been_changed(CONF_ITEM *item)
   }
 }
 
+void cf_print_help(void)
+{
+  int i, j;
+  CONF_ITEM *cf;
+  printf("Usage: gngeo [OPTION]... ROMSET\n"
+         "Emulate the NeoGeo rom designed by ROMSET\n\n");
+
+  for(i = 0; i < 128; i++) {
+    for(j = 0; j < cf_hash[i].nb_item; j++) {
+      cf = cf_hash[i].conf[j];
+      if(cf->short_opt < 128 && cf->short_opt >= 32) {
+        printf("  -%c, --", cf->short_opt);
+      }
+      else {
+        printf("      --");
+      }
+      switch(cf->type) {
+      case CFT_ARRAY:
+      case CFT_STR_ARRAY:
+      case CFT_STRING:
+      case CFT_ACTION_ARG:
+      case CFT_INT: {
+        char buf[22];
+        snprintf(buf, 21, "%s=%s", cf->name, cf->help_arg);
+        printf("%-20s %s\n", buf, cf->help);
+      }
+      break;
+      case CFT_BOOLEAN:
+      case CFT_ACTION:
+        printf("%-20s %s\n", cf->name, cf->help);
+        break;
+      }
+    }
+  }
+  printf("\nAll boolean options can be disabled with --no-OPTION\n"
+         "(Ex: --no-sound turn sound off)\n\n");
+}
+
+static int print_help(CONF_ITEM *self)
+{
+  cf_print_help();
+  return 0;
+}
+
+static int show_all_game(CONF_ITEM *self)
+{
+  printf("Not implemented yet\n");
+  return 0;
+}
+
+static int show_version(CONF_ITEM *self)
+{
+  printf("Gngeo %s\n", __DATE__);
+  printf("Copyright (C) 2001 Peponas Mathieu\nwith changes 2021 Steward-fu\nand changes 2024 Apaczer\n");
+
+  return 0;
+}
+
 void cf_init(void)
 {
   //char *lr_btn_string[] = {"None", "A", "B", "C", "D", "A+B", "A+C", "A+D", "B+C", "B+D", "C+D", "A+B+C", "A+B+D", "A+C+D", "B+C+D", "A+B+C+D"};
+  cf_create_action_item("help", "Print this help and exit", 'h', print_help);
+  cf_create_action_item("version", "Show version and exit", 'v', show_version);
   cf_create_bool_item("showfps", "Show FPS", 0, GN_FALSE);
   cf_create_bool_item("sound", "Enable Sound", 0, GN_TRUE);
+  cf_create_string_item("country", "Set the contry to japan, asia, usa or europe", "...", 0, "europe");
+  cf_create_string_item("system", "Set the system to home, arcade or unibios", "...", 0, "arcade");
   cf_create_int_item("a_btn", "Set Custom Button", "A", 0, 1);
   cf_create_int_item("b_btn", "Set Custom Button", "B", 0, 2);
   cf_create_int_item("x_btn", "Set Custom Button", "X", 0, 3);
