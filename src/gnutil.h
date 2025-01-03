@@ -11,8 +11,39 @@ void chomp(char *str);
 char *my_fgets(char *s, int size, FILE *stream);
 char *file_basename(char *filename);
 int check_dir(char *dir_name);
-void gn_set_error_msg(char *fmt, ...);
-void gn_strncat_dir(char *basedir, char *dir, size_t n);
+void gn_set_error_msg(char *fmt,...);
+void gn_strncat_dir(char *basedir,char *dir,size_t n);
+
+#ifndef DATA_DIRECTORY
+#define DATA_DIRECTORY
+#endif
+
+#if defined (__AMIGA__)
+#ifdef DATA_DIRECTORY
+#undef DATA_DIRECTORY
+#define DATA_DIRECTORY "/PROGDIR/data/"
+#endif
+#elif defined (__MIYOO__)
+#ifdef DATA_DIRECTORY
+#undef DATA_DIRECTORY
+#define DATA_DIRECTORY "/mnt/roms/NEOGEO/"
+#endif
+#endif
+#if defined (WII)
+#define ROOTPATH "sd:/apps/gngeo/"
+#elif defined (__AMIGA__)
+#define ROOTPATH "/PROGDIR/data/"
+#elif defined (__MIYOO__)
+#define ROOTPATH "/mnt/emus/gngeo/"
+#else
+#define ROOTPATH ""
+#endif
+
+
+/* LOG generation */
+#define GNGEO_LOG(...)
+#define DEBUG_LOG printf
+//#define GNGEO_LOG printf
 
 #define GN_TRUE 1
 #define GN_FALSE 0

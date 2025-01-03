@@ -13,6 +13,7 @@ PKGS_CFLAGS = $(shell $(PKG_CONFIG) --cflags $(PKGS))
 PKGS_LIBS = $(shell $(PKG_CONFIG) --libs $(PKGS))
 CFLAGS = $(PKGS_CFLAGS)
 #CFLAGS += -ggdb
+CFLAGS += -D__MIYOO__
 CFLAGS += -D_GNU_SOURCE=1 -D_REENTRANT -DARM
 CFLAGS += -O3 -fstrength-reduce -frerun-loop-opt -funroll-loops -ffast-math -fexpensive-optimizations -fomit-frame-pointer -fno-strict-aliasing
 LDFLAGS = $(PKGS_LIBS)

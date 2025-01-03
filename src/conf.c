@@ -344,8 +344,8 @@ void cf_init(void)
   cf_create_int_item("y_btn", "Set Custom Button", "Y", 0, 4);
   cf_create_int_item("l_btn", "Set Custom Button", "L", 0, 0);
   cf_create_int_item("r_btn", "Set Custom Button", "R", 0, 0);
-  cf_create_string_item("rompath", "Tell gngeo where your roms are", "PATH", 'i', "DATA_DIRECTORY");
-  cf_create_string_item("biospath", "Tell gngeo where your neogeo bios is", "PATH", 'B', ROOTPATH"./roms");
+  cf_create_string_item("rompath", "Tell gngeo where your roms are", "PATH", 'i', DATA_DIRECTORY);
+  cf_create_string_item("biospath", "Tell gngeo where your neogeo bios is", "PATH", 'B', DATA_DIRECTORY);
   cf_create_bool_item("dump", "Create a gno dump in the current dir and exit", 0, GN_FALSE);
   cf_get_item_by_name("rompath")->flags |= CF_SYSTEMOPT;
 }
