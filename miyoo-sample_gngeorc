@@ -3,6 +3,9 @@
 # Where your roms & bioses are?
 rompath /usr/games/lib/gngeo
 
+# Where did you put yout neogeo.zip & uni-bios.rom files?
+biospath /usr/games/lib/gngeo
+
 # Have sound?
 sound true
 

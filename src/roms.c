@@ -1322,7 +1322,7 @@ int dr_load_bios(GAME_ROMS *r)
   ZFILE *z;
   size_t totread = 0;
   unsigned int size;
-  char *rpath = CF_STR(cf_get_item_by_name("rompath"));
+  char *rpath = CF_STR(cf_get_item_by_name("biospath"));
   char *fpath;
   const char *romfile;
   fpath = malloc(strlen(rpath) + strlen("neogeo.zip") + 2);
