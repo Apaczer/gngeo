@@ -2,11 +2,7 @@
 
 ### Native build (linux):
 ```
-aclocal
-autoheader
-automake --gnu --add-missing
-autoconf
-autoupdate
+./bootstrap
 ./configure
 make -j$(nproc)
 ```
