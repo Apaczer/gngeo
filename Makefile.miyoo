@@ -75,7 +75,7 @@ release: all
 	install -m0755 -D $(TARGET) dist/
 
 ipk: release
-	gm2xpkg -c -i miyoo-pkg.cfg
+	gm2xpkg -i -c -q -f miyoo-pkg.cfg
 
 clean:
 	rm -rf $(OBJS) $(TARGET)
