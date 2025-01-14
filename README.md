@@ -1,7 +1,24 @@
 ## GNGEO - a NeoGeo emulator
 
-### Native build (linux):
+ROMSETs preferably should be inline with MAME 0.138 
+
+BIOS expected set of files (neogeo.zip):
 ```
+000-lo.lo
+sfix.sfx
+usa_2slt.bin - USA 
+vs-bios.rom - Japan 
+asia-s3.rom - Asia 
+sp-s2.sp1 - Europe 
+aes-bios.bin - A.E.S
+uni-bios.rom - UniBios
+```
+
+### Native build (linux):
+
+To make fully working PC builds use stable (upstream compatible) branch:
+```
+git checkout gngeo-upd
 ./bootstrap
 ./configure
 make -j$(nproc)

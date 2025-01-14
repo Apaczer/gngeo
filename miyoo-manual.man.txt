@@ -15,7 +15,7 @@ CONFIGURATION :
     directly ROMset from gmenu2x it will auto-update above directory.
 
 NOTES:
-Please use non-merge ROMSET to emulate the NeoGeo rom designed by ROMSET preferably from MAME 0.128 or FBA 2012 romset.
+Please use non-merge ROMSET to emulate the NeoGeo game (preferably from MAME 0.138)
 
 Usage: gngeo [OPTION]... ROMSET
       --help             Print this help and exit
