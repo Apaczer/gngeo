@@ -1414,8 +1414,10 @@ void gn_init_menu(void)
   GN_MENU_ITEM *gitem;
   main_menu = create_menu(NULL, MENU_BIG, NULL, NULL);
 
+#ifndef __MIYOO__
   main_menu->item = list_append(main_menu->item, gn_menu_create_item("Load game", MENU_ACTION, rbrowser_action, NULL));
   main_menu->nb_elem++;
+#endif
 
   main_menu->item = list_append(main_menu->item, gn_menu_create_item("Load state", MENU_ACTION, load_state_action, NULL));
   main_menu->nb_elem++;
