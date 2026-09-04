@@ -1323,11 +1323,7 @@ ROM_DEF *dr_check_zip(const char *filename) {
 
 	char *z;
 	ROM_DEF *drv;
-#ifdef HAVE_BASENAME
-	char *game = strdup(basename(filename));
-#else
 	char *game = strdup(strrchr(filename, '/'));
-#endif
 	//	printf("Game=%s\n", game);
 	if (game == NULL)
 		return NULL;

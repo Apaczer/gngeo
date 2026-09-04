@@ -242,7 +242,7 @@ int 	(*irq_callback)(int irqline);
 int Z80_ICOUNT;
 static Z80_Regs Z80 = { { { 0 } } };
 
-uint z80_stateDataSize = offsetof(Z80_Regs, extra_cycles);
+unsigned int z80_stateDataSize = offsetof(Z80_Regs, extra_cycles);
 UINT8 *z80_stateData(void)
 {
 	return (UINT8*)&Z80;

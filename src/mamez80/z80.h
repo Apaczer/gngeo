@@ -158,7 +158,7 @@ extern void mame_z80_writeport16(UINT16 port,UINT8 value);
 extern unsigned DasmZ80(char *buffer, unsigned pc);
 #endif
 
-extern uint z80_stateDataSize;
+extern unsigned int z80_stateDataSize;
 UINT8 *z80_stateData(void);
 
 #endif

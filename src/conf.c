@@ -21,6 +21,11 @@
 #include <config.h>
 #endif
 
+#ifdef HAVE_GETOPT_LONG
+#include <getopt.h>
+#else
+#include "getopt.h"
+#endif
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -29,11 +34,6 @@
 #include <unistd.h>
 #include <dirent.h>
 
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include "getopt.h"
-#endif
 
 #include <zlib.h>
 #include "unzip.h"

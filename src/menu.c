@@ -1180,6 +1180,9 @@ int rom_browser_scanning_anim(void *data) {
 	}
 	return 0;
 }
+
+#define realpath(N,R) _fullpath((R),(N),_MAX_PATH)
+
 static void free_rom_browser_menu(void);
 void init_rom_browser_menu(void);
 static int changedir_action(GN_MENU_ITEM *self, void *param) {

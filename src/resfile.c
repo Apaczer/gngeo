@@ -38,13 +38,14 @@ int res_verify_datafile(char *file) {
 
 	if (!file) file=CF_STR(cf_get_item_by_name("datafile"));
 
+/*
 	if (lstat(file,&sb)==-1) {
 		gn_set_error_msg("%s not found",file);
 		return GN_FALSE;
 	}
-
+*/
 	/* if it's a dir, try to append gngeo_data.zip, and recheck */
-	if (S_ISDIR(sb.st_mode)) {
+/*	if (S_ISDIR(sb.st_mode)) {
 		char *buf=malloc(strlen(file)+strlen("/gngeo_data.zip")+1);
 		snprintf(buf,254,"%s/%s",file,"gngeo_data.zip");
 		if(res_verify_datafile(buf)==GN_TRUE) {
@@ -60,6 +61,8 @@ int res_verify_datafile(char *file) {
 	if (S_ISREG(sb.st_mode)) return GN_TRUE;
 	gn_set_error_msg("%s not a valid file",file);
 	return GN_FALSE;
+*/
+	return GN_TRUE;
 
 
 }

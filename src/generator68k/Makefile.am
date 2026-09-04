@@ -49,7 +49,7 @@ MOSTLYCLEANFILES = ${BUILT_SOURCES}
 CLEANFILES = def68k.stamp gen68k.stamp
 
 def68k.o gen68k.o tab68k2.o : %.o : %.c
-	$(gcc_build_verbose)$(CC_FOR_BUILD) -c $< -o $@ -I .. -I ../.. -I . `sdl-config --cflags`
+	$(gcc_build_verbose)$(CC_FOR_BUILD) -c $< -o $@ -I .. -I ../.. -I . `sdl-config --cflags` -Umain -Dmain=main
 
 def68k$(EXEEXT) : def68k.o tab68k2.o
 	$(gcc_build_verbose)$(CC_FOR_BUILD) def68k.o tab68k2.o -o $@
