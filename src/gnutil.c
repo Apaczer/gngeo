@@ -6,6 +6,8 @@
  */
 
 
+#define MINGW
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -100,11 +102,17 @@ void gn_set_error_msg(char *fmt,...) {
 	vsnprintf(gnerror,GNERROR_SIZE,fmt,pvar);
 }
 
+#if defined(MINGW)
+#define GN_DIR_SEP '\\'
+#else
+#define GN_DIR_SEP '/'
+#endif
+
 /*
  * replace any ending / with a 0
  */
 void gn_rtrim_slash(char *dir) {
-	if (dir[strlen(dir)-1]=='/' && strlen(dir)!=1)
+	if (dir[strlen(dir)-1]==GN_DIR_SEP && strlen(dir)!=1)
 		dir[strlen(dir)-1]=0;
 }
 
@@ -115,7 +123,7 @@ void gn_strncat_dir(char *basedir,char *dir,size_t n) {
 			return;
 	if (strcmp(dir,"..")==0 ) {
 		if (strlen(basedir)!=1) {
-			char *slash=strrchr(basedir,'/');
+			char *slash=strrchr(basedir,GN_DIR_SEP);
 			if (slash==basedir)
 				slash[1]=0;
 			else if (slash!=NULL)
@@ -123,7 +131,11 @@ void gn_strncat_dir(char *basedir,char *dir,size_t n) {
 		} else
 			return;
 	} else {
-		if (strlen(basedir)!=1) strncat(basedir,"/",n);
+		if (strlen(basedir)!=1) {
+			char sep[2];
+			sep[0]=GN_DIR_SEP; sep[1]=0;
+			strncat(basedir,sep,n);
+		}
 		strncat(basedir,dir,n);
 	}
 }
