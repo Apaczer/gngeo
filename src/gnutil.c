@@ -79,7 +79,7 @@ char *get_gngeo_dir(void) {
 #if defined (__AMIGA__)
     int len = strlen("/PROGDIR/data/") + 1;
 #else
-    int len = strlen(getenv("HOME")) + strlen("/.gngeo/") + 1;
+    int len = strlen("./gngeo/") + 1;
 #endif
     if (!filename) {
         filename = malloc(len * sizeof (char));
@@ -87,7 +87,7 @@ char *get_gngeo_dir(void) {
 #if defined (__AMIGA__)
         sprintf(filename, "/PROGDIR/data/");
 #else
-        sprintf(filename, "%s/.gngeo/", getenv("HOME"));
+        sprintf(filename, "./gngeo/");
 #endif
     }
     check_dir(filename);

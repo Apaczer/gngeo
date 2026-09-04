@@ -536,9 +536,10 @@ int cf_save_option(char *filename, char *optname,int flags) {
 		conf_file = (char *) alloca(len * sizeof (char));
 		sprintf(conf_file, "/PROGDIR/data/gngeorc");
 #else /* POSIX */
-		int len = strlen("gngeorc") + strlen(getenv("HOME")) + strlen("/.gngeo/") + 1;
+		int len = strlen("./gngeo/gngeorc") + 1;
 		conf_file = (char *) alloca(len * sizeof (char));
-		sprintf(conf_file, "%s/.gngeo/gngeorc", getenv("HOME"));
+		sprintf(conf_file, "./gngeo/gngeorc");
+		
 #endif
 	}
 	conf_file_dst = alloca(strlen(conf_file) + 4);
@@ -705,9 +706,9 @@ int cf_open_file(char *filename) {
 		conf_file = (char *) alloca(len * sizeof (char));
 		sprintf(conf_file, "/PROGDIR/data/gngeorc");
 #else
-		int len = strlen("gngeorc") + strlen(getenv("HOME")) + strlen("/.gngeo/") + 1;
+		int len = strlen("./gngeo/gngeorc") + 1;
 		conf_file = (char *) alloca(len * sizeof (char));
-		sprintf(conf_file, "%s/.gngeo/gngeorc", getenv("HOME"));
+		sprintf(conf_file, "./gngeo/gngeorc");
 #endif
 	}
 	if ((f = fopen(conf_file, "rb")) == 0) {
