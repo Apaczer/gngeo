@@ -1647,11 +1647,11 @@ void gn_init_menu(void) {
 GN_MENU_ITEM *gitem;
 main_menu = create_menu(NULL, MENU_BIG, NULL, NULL);
 
-main_menu->item = list_append(
-		main_menu->item,
-		(void*) gn_menu_create_item("Load game", MENU_ACTION, rbrowser_action,
-				NULL));
-main_menu->nb_elem++;
+// main_menu->item = list_append(
+// 		main_menu->item,
+// 		(void*) gn_menu_create_item("Load game", MENU_ACTION, rbrowser_action,
+// 				NULL));
+// main_menu->nb_elem++;
 
 main_menu->item = list_append(
 		main_menu->item,
