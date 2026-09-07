@@ -48,6 +48,9 @@ AM_PATH_SDL($SDL_VERSION,,AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!]
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
+# Bypass linkage error on newer GCC 10+
+CFLAGS="$CFLAGS -fcommon"
+
 # Setup platform specific optimisation/source/cflags/libs/etc.
 if test "x$enable_gp2x" = xtrue ; then
 	AC_DEFINE([GP2X],[1],[Define if you build for gp2x])
