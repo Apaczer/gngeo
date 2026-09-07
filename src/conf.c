@@ -83,8 +83,8 @@ static char *default_p1control = "A=J0B9,B=J0B10,C=J0B11,D=J0B12,START=J0B18,COI
 	"UPDOWN=J0A1,LEFTRIGHT=J0A0,JOY=J0H0";
 static char *default_p2control = "....";
 #else
-	/* TODO: Make Querty default instead of azerty */
-static char * default_p1control = "A=K119,B=K120,C=K113,D=K115,START=K38,COIN=K34,"
+	/* Qwerty default layout */
+static char * default_p1control = "A=K122,B=K120,C=K97,D=K115,START=K49,COIN=K51,"
 		"UP=K273,DOWN=K274,LEFT=K276,RIGHT=K275,MENU=K27";
 static char * default_p2control = "";
 #endif
