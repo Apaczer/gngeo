@@ -43,6 +43,11 @@
 #include "memory.h"
 #include "gnutil.h"
 
+#if defined(WIN32) || defined(_WIN32) || defined(__MINGW32__)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 
 /* 
 
@@ -646,8 +651,17 @@ int cf_save_option(char *filename, char *optname,int flags) {
 	}
 	fclose(f_dst);
 
+#if defined(WIN32) || defined(_WIN32) || defined(__MINGW32__)
+	if (!MoveFileEx(conf_file_dst, conf_file, MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED)) {
+		remove(conf_file);
+		if (rename(conf_file_dst, conf_file) != 0)
+			return GN_FALSE;
+	}
+#else
 	remove(conf_file);
-	rename(conf_file_dst, conf_file);
+	if (rename(conf_file_dst, conf_file) != 0)
+		return GN_FALSE;
+#endif
 
 	return GN_TRUE;
 }
@@ -758,6 +772,7 @@ int cf_open_file(char *filename) {
 			/* unknow option...*/
 		}
 	}
+	fclose(f);
 
 	cf_cache_conf();
 	return GN_TRUE;
